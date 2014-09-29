@@ -29,7 +29,7 @@ local function setcontents (contents, filename)
 end
 
 local function validArgs()
-  if #arg != 3 then
+  if #arg ~= 3 then
     print('usage: [input_file] [lua_module_name] [output_file]')
     return false
   end
