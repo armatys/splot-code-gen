@@ -102,7 +102,7 @@ end
 local function getModuleName(filepath)
   local c = lpeg.P{
     'S';
-    S = (lpeg.V'elem' * lpeg.V'sep')^0 * lpeg.C(lpeg.V'fname'),
+    S = lpeg.V'sep'^0 * (lpeg.V'elem' * lpeg.V'sep')^0 * lpeg.C(lpeg.V'fname'),
     elem = (1 - lpeg.S'/')^1,
     fname = (1 - (lpeg.P'.' * lpeg.V'fext' * -1))^1,
     fext = lpeg.R'az'^1,
