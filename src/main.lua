@@ -15,14 +15,14 @@ local STRICT = false
 local WARNINGS = false
 
 local function getcontents (filename)
-  local file = assert(io.open(filename, 'r'))
+  local file = assert(io.open(filename, 'r'), 'Could not get the file contents')
   local contents = file:read('*a')
   file:close()
   return contents
 end
 
 local function setcontents (contents, filename)
-  local file = assert(io.open(filename, 'w'))
+  local file = assert(io.open(filename, 'w+'), 'Could not save a file')
   file:write(contents)
   file:write('\n')
   file:close()
