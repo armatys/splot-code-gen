@@ -133,7 +133,8 @@ local function main()
     print('Could not generate the code', codeOrErr)
     os.exit(1)
   end
-  print(codeOrErr)
+
+  setcontents(codeOrErr, outFilePath)
 end
 
 main()
