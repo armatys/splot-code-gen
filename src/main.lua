@@ -2,6 +2,7 @@
 
 local dir = require 'dir'.dir
 local io = require 'io'
+local java = require 'java'
 local lpeg = require 'lpeg'
 local math = require 'math'
 local os = require 'os'
@@ -78,7 +79,7 @@ local function formatCodeTable(codeTable, level)
   return table.concat(buf, '')
 end
 
-local function generateCode(luaModuleName, moduleName, ast)
+local function generateCode(generator, luaModuleName, moduleName, ast)
   local nodeI, returnNode = findReturnNode(ast)
   if not nodeI then
     error 'Could not find the return node.'
@@ -89,7 +90,7 @@ local function generateCode(luaModuleName, moduleName, ast)
     error 'The returned object must be a table.'
   end
 
-  local codeTable = swift.processTable(moduleName, returnNodeType, luaModuleName)
+  local codeTable = generator.processTable(moduleName, returnNodeType, luaModuleName)
   return formatCodeTable(codeTable)
 end
 
@@ -128,7 +129,16 @@ local function main()
   end
 
   local moduleName = getModuleName(outFilePath)
-  local ok, codeOrErr = pcall(generateCode, luaModuleName, moduleName, astOrMsg)
+  local generator = nil
+  if outFilePath:match('.*%.swift$') then
+    generator = swift
+  elseif outFilePath:match('.*%.java$') then
+    generator = java
+  else
+    error('Could not infer generator from the target file extension (java or swift).')
+  end
+  
+  local ok, codeOrErr = pcall(generateCode, generator, luaModuleName, moduleName, astOrMsg)
   if not ok then
     print('Could not generate the code', codeOrErr)
     os.exit(1)
