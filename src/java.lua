@@ -317,7 +317,7 @@ local function generateJavaFunction(funcName, fieldValueNode, codeBuf)
     elseif retNode.tag == 'TTable' then
       -- we need to make sure the table is at the top of the stack
       table.insert(innerBuf, string.format('L.pushValue(%d);', luaIndex))
-      table.insert(innerBuf, string.format('%s = new %s(true);', varDeclaration, javaType))
+      table.insert(innerBuf, string.format('%s = new %s(mEngine, true);', varDeclaration, javaType))
       table.insert(returnVars, retName)
     elseif retNode.tag == 'TVararg' and retNode[1].tag == 'TNil' then
       -- Ignore
@@ -681,7 +681,7 @@ local function generateJavaClassProperty(keyName, fieldValueNode, codeBuf, optio
       table.insert(innerBuf, '}')
     end
 
-    table.insert(innerBuf, string.format('%s t = new %s(true);', notNullableJavaType, notNullableJavaType))
+    table.insert(innerBuf, string.format('%s t = new %s(mEngine, true);', notNullableJavaType, notNullableJavaType))
     table.insert(innerBuf, 'mEngine.restoreStack();')
     table.insert(innerBuf, 'return t;')
     table.insert(innerBuf, '}') -- get
@@ -772,7 +772,6 @@ local function javaInitializerForLuaModule(moduleName, tableSpec, luaModuleName)
   table.insert(codeBuf, 'private String mLuaModuleName;')
   table.insert(codeBuf, 'private int mLuaTableRef;')
   table.insert(codeBuf, string.format('public %s(Context context) {', moduleName))
-  
   do
     local innerCodeBuf = {}
     table.insert(innerCodeBuf, 'mEngine = new SplotEngine(context);')
@@ -785,7 +784,14 @@ local function javaInitializerForLuaModule(moduleName, tableSpec, luaModuleName)
     table.insert(innerCodeBuf, string.format('mLuaModuleName = "%s";', luaModuleName))
     table.insert(codeBuf, innerCodeBuf)
   end
+  table.insert(codeBuf, '}')
 
+  table.insert(codeBuf, 'public SplotEngine getEngine() {')
+  table.insert(codeBuf, ' return mEngine;')
+  table.insert(codeBuf, '}')
+
+  table.insert(codeBuf, 'public int getLuaTableRef() {')
+  table.insert(codeBuf, ' return mLuaTableRef;')
   table.insert(codeBuf, '}')
   return codeBuf
 end
@@ -793,9 +799,15 @@ end
 local function javaSimpleInitializer(moduleName, tableSpec)
   local codeBuf = {}
   table.insert(codeBuf, 'private int mLuaTableRef;')
-  table.insert(codeBuf, string.format('public %s(boolean useTopTable) {', moduleName))
+  table.insert(codeBuf, 'private SplotEngine mEngine;')
+  table.insert(codeBuf, string.format('public %s(SplotEngine engine, boolean useTopTable) {', moduleName))
+  table.insert(codeBuf, 'mEngine = engine;')
   table.insert(codeBuf, 'if (!useTopTable) { mEngine.getLuaState().createTable(0, 0); }')
   table.insert(codeBuf, 'mLuaTableRef = mEngine.getLuaState().Lref(LuaState.LUA_GLOBALSINDEX);')
+  table.insert(codeBuf, '}')
+
+  table.insert(codeBuf, 'public SplotEngine getEngine() {')
+  table.insert(codeBuf, ' return mEngine;')
   table.insert(codeBuf, '}')
 
   table.insert(codeBuf, 'public int getLuaTableRef() {')
@@ -815,6 +827,7 @@ end
 
 javaProcessTable = function(moduleName, tableSpec, luaModuleName)
   local codeBuf = {}
+  local staticDecl = ''
 
   if luaModuleName then
     -- Import any needed classes
@@ -831,7 +844,10 @@ javaProcessTable = function(moduleName, tableSpec, luaModuleName)
     table.insert(codeBuf, 'import java.util.HashSet;')
     table.insert(codeBuf, 'import java.util.Map;')
     table.insert(codeBuf, 'import java.util.Set;')
+    table.insert(codeBuf, 'import pl.makenika.splot.LuaTable;')
     table.insert(codeBuf, 'import pl.makenika.splot.SplotEngine;')
+  else
+    staticDecl = 'static'
   end
 
   local fieldKeyNode = tableSpec[1][1]
@@ -841,9 +857,9 @@ javaProcessTable = function(moduleName, tableSpec, luaModuleName)
     if fieldValueNode.tag == 'TUnion' then
       fieldValueNode = fieldValueNode[1].tag == 'TNil' and fieldValueNode[2] or fieldValueNode[1]
     end
-    table.insert(codeBuf, string.format('public class %s implements Map<%s, %s> {', moduleName, getJavaType(fieldKeyNode), getJavaType(fieldValueNode)))
+    table.insert(codeBuf, string.format('public %s class %s implements LuaTable, Map<%s, %s> {', staticDecl, moduleName, getJavaType(fieldKeyNode), getJavaType(fieldValueNode)))
   else
-    table.insert(codeBuf, string.format('public class %s {', moduleName))
+    table.insert(codeBuf, string.format('public %s class %s implements LuaTable {', staticDecl, moduleName))
   end
 
   if luaModuleName then
