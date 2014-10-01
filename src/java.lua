@@ -52,7 +52,6 @@ local function generateJavaBaseProperty(fieldKeyName, fieldValueNode, codeBuf, o
   optional = optional or false
   local javaType = (optional and '@Nullable ' or '') .. getJavaType(fieldValueNode)
   local fieldName = type(fieldKeyName) == 'string' and fieldKeyName or ('_' .. tostring(fieldKeyName))
-  table.insert(codeBuf, string.format('private %s %s;', javaType, fieldName))
   
   -- getter
   table.insert(codeBuf, string.format('public %s get%s() {', javaType, makeAccessorName(fieldName)))
