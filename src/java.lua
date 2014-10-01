@@ -777,6 +777,7 @@ local function javaInitializerForLuaModule(moduleName, tableSpec, luaModuleName)
     table.insert(innerCodeBuf, 'try {')
     table.insert(innerCodeBuf, string.format('  mEngine.loadLuaModule("%s");', luaModuleName))
     table.insert(innerCodeBuf, '} catch (IOException e) {')
+    table.insert(innerCodeBuf, '  mEngine = null;')
     table.insert(innerCodeBuf, '  throw new RuntimeException(e);')
     table.insert(innerCodeBuf, '}')
     table.insert(innerCodeBuf, 'mLuaTableRef = mEngine.getLuaState().Lref(LuaState.LUA_GLOBALSINDEX);')
@@ -819,7 +820,9 @@ local function javaDeinitializer()
   local codeBuf = {}
   table.insert(codeBuf, 'protected void finalize() throws Throwable {')
   table.insert(codeBuf, '  super.finalize();')
-  table.insert(codeBuf, '  mEngine.getLuaState().LunRef(LuaState.LUA_GLOBALSINDEX, mLuaTableRef);')
+  table.insert(codeBuf, '  if (mEngine != null) {')
+  table.insert(codeBuf, '    mEngine.getLuaState().LunRef(LuaState.LUA_GLOBALSINDEX, mLuaTableRef);')
+  table.insert(codeBuf, '  }')
   table.insert(codeBuf, '}')
   return codeBuf
 end
@@ -850,10 +853,10 @@ javaProcessTable = function(moduleName, tableSpec, luaModuleName)
     staticDecl = 'static'
   end
 
-  local fieldKeyNode = tableSpec[1][1]
-  local fieldValueNode = tableSpec[1][2]
+  local fieldKeyNode = tableSpec[1] and tableSpec[1][1]
 
-  if fieldKeyNode.tag == 'TBase' then
+  if fieldKeyNode and fieldKeyNode.tag == 'TBase' then
+    local fieldValueNode = tableSpec[1][2]
     if fieldValueNode.tag == 'TUnion' then
       fieldValueNode = fieldValueNode[1].tag == 'TNil' and fieldValueNode[2] or fieldValueNode[1]
     end
