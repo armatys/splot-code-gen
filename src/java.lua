@@ -830,6 +830,7 @@ javaProcessTable = function(moduleName, tableSpec, luaModuleName)
   local staticDecl = ''
 
   if luaModuleName then
+    table.insert(codeBuf, 'package splot;')
     -- Import any needed classes
     table.insert(codeBuf, 'import android.content.Context;')
     table.insert(codeBuf, 'import android.support.annotation.NonNull;')
