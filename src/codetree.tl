@@ -1,0 +1,114 @@
+local string = require 'string'
+local table = require 'table'
+
+local interface Node
+  left_contents: {string}
+  right_contents: {string}
+  children: {Node}
+  root_children: {Node}
+
+  const new:() => (self)
+  const insertleft:(string, number?) => (self)
+  const insertright:(string, number?) => (self)
+  const child:(Node) => (self)
+  const rootchild:(Node) => (self)
+  const joinleft:(Node) => (self)
+  const joinright:(Node) => (self)
+  const tree:(number?) => ({string})
+  const code:() => (string)
+end
+
+local Node = { left_contents = {}, right_contents = {}, children = {}, root_children = {} }
+
+const function Node:new(): self
+  local children: {Node} = {}
+  local s = setmetatable({}, {__index = self})
+  s.left_contents = {}
+  s.right_contents = {}
+  s.children = {}
+  s.root_children = {}
+  return s
+end
+
+const function Node:insertleft(code: string, pos: number?)
+  pos = pos or #self.left_contents + 1
+  table.insert(self.left_contents, pos, code)
+  return self
+end
+
+const function Node:insertright(code: string, pos: number?)
+  pos = pos or #self.right_contents + 1
+  table.insert(self.right_contents, pos, code)
+  return self
+end
+
+const function Node:child(node: Node): self
+  table.insert(self.children, #self.children + 1, node)
+  return self
+end
+
+const function Node:rootchild(node: Node): self
+  table.insert(self.root_children, #self.root_children + 1, node)
+  return self
+end
+
+const function Node:joinleft(node): self
+  local t = node:tree()
+  for _, v in ipairs(t) do
+    table.insert(self.left_contents, #self.left_contents + 1, v)
+  end
+  return self
+end
+
+const function Node:joinright(node): self
+  local t = node:tree()
+  for _, v in ipairs(t) do
+    table.insert(self.right_contents, #self.right_contents + 1, v)
+  end
+  return self
+end
+
+local function iterateChildren(root_children: {Node}, level: number, code: {string})
+  for _, childnode in ipairs(root_children) do
+    local codelines = childnode:tree(level)
+    for _, line in ipairs(codelines) do
+      table.insert(code, #code + 1, line)
+    end
+  end
+end
+
+local function iterateContents(contents: {string}, level: number, code: {string})
+  local whitespace: string = string.rep('  ', level)
+  for _, v in ipairs(contents) do
+    for line in string.gmatch(v, '(.-)$') do
+      if not line:match('^%s*$') then
+        table.insert(code, #code + 1, whitespace .. line)
+      end
+    end
+  end
+end
+
+const function Node:tree(level: number?)
+  level = level or 0
+  local code: {string} = {}
+
+  if level == 0 then
+    iterateChildren(self.root_children, 0, code)
+    for _, childnode in ipairs(self.children) do
+      iterateChildren(childnode.root_children, 0, code)
+    end
+  end
+
+  iterateContents(self.left_contents, level, code)
+  iterateChildren(self.children, level + 1, code)
+  iterateContents(self.right_contents, level, code)
+
+  return code
+end
+
+const function Node:code()
+  local t = self:tree()
+  return table.concat(t, '\n')
+end
+
+return {Node = Node}
