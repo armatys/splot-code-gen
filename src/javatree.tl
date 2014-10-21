@@ -1,7 +1,7 @@
 local Node = require 'codetree'.Node
 local string = require 'string'
 
-local NullableFQCN = 'javax.annotation.Nullable'
+local NullableFQN = 'javax.annotation.Nullable'
 
 local interface JavaClassDescriptor
   visibility: string?
@@ -38,9 +38,15 @@ end
 local interface JavaMethodSpec
   methodName: string
   returnSpec: JavaMethodReturn
-  params: {JavaMethodParam}
+  params: {JavaMethodParam}?
   visibility: string?
   static: boolean?
+  code: string?
+end
+
+local interface JavaConstructorSpec
+  params: {JavaMethodParam}?
+  visibility: string?
   code: string?
 end
 
@@ -54,11 +60,16 @@ local interface JavaNode
   const import:(string) => (self)
 end
 
-local JavaNode = setmetatable({}, { __index = Node })
-JavaNode.class = nil
-JavaNode.className = nil
-JavaNode.fields = {}
-JavaNode.methods = {}
+local function isVisibilitySpecInvalid(visibility)
+  return visibility ~= 'public' and visibility ~= 'private' and visibility ~= 'protected'
+end
+
+local JavaNode = setmetatable({
+    class = nil,
+    className = nil,
+    fields = {},
+    methods = {}
+  }, { __index = Node })
 
 const function JavaNode:new(): self
   local c = setmetatable(Node:new(), { __index = self })
@@ -77,7 +88,7 @@ const function JavaNode:newclass(className: string, d: JavaClassDescriptor?)
 
   local firstLineBuf: {string} = {}
   if descriptor.visibility then
-    if descriptor.visibility ~= 'public' and descriptor.visibility ~= 'private' then
+    if isVisibilitySpecInvalid(descriptor.visibility) then
       error(string.format('Class %s has invalid visibility: "%s"', className, descriptor.visibility), 2)
     end
     table.insert(firstLineBuf, #firstLineBuf + 1, descriptor.visibility)
@@ -109,12 +120,12 @@ const function JavaNode:newclass(className: string, d: JavaClassDescriptor?)
   c:insertright('}')
 
   c.class = d
-  c.classname = className
+  c.className = className
   return c
 end
 
-const function JavaNode:import(fqcn: string)
-  local line = string.format('import %s;', fqcn)
+const function JavaNode:import(fqn: string)
+  local line = string.format('import %s;', fqn)
   local node = JavaNode:new():insertleft(line)
   node.unique = true
   self:rootchild(node)
@@ -150,7 +161,7 @@ end
 local function generateField(fieldSpec: JavaFieldSpec)
   local declBuf: {string} = {}
   if fieldSpec.visibility then
-    if fieldSpec.visibility ~= 'public' and fieldSpec.visibility ~= 'private' then
+    if isVisibilitySpecInvalid(fieldSpec.visibility) then
       error(string.format('Field %s has invalid visibility: "%s"', fieldSpec.fieldName, tostring(fieldSpec.visibility)), 3)
     end
     table.insert(declBuf, #declBuf + 1, fieldSpec.visibility)
@@ -175,7 +186,7 @@ end
 const function JavaNode:field(fieldSpec: JavaFieldSpec)
   self:child(generateField(fieldSpec))
   if fieldSpec.optional then
-    self:import(NullableFQCN)
+    self:import(NullableFQN)
   end
 
   if fieldSpec.getter then
@@ -211,12 +222,34 @@ const function JavaNode:field(fieldSpec: JavaFieldSpec)
   return self
 end
 
+const function JavaNode:generateMethodParams(params, buf, codeNode)
+  for i, param in ipairs(params) do
+    if param.optional then
+      self:import(NullableFQN)
+      table.insert(buf, #buf + 1, '@Nullable')
+    end
+    table.insert(buf, #buf + 1, param.paramType)
+    table.insert(buf, #buf + 1, param.name)
+    if i < #params then
+      table.insert(buf, #buf + 1, ',')
+    end
+    if param.defaultValue then
+      codeNode:joinleft(JavaNode:new()
+        :insertleft(string.format('if (%s == null) {', param.name))
+        :insertright('}')
+        :child(JavaNode:new():insertleft(string.format('%s = %s;', param.name, param.defaultValue)))
+      )
+    end
+  end
+end
+
 const function JavaNode:method(spec: JavaMethodSpec)
   local firstLineBuf: {string} = {}
   local codeNode = JavaNode:new()
+  spec.params = spec.params or {}
 
   if spec.visibility then
-    if spec.visibility ~= 'public' and spec.visibility ~= 'private' then
+    if isVisibilitySpecInvalid(spec.visibility) then
       error(string.format('Method %s has invalid visibility: "%s"', spec.methodName, tostring(spec.visibility)), 2)
     end
     table.insert(firstLineBuf, #firstLineBuf + 1, spec.visibility)
@@ -227,34 +260,14 @@ const function JavaNode:method(spec: JavaMethodSpec)
   end
 
   if spec.returnSpec.optional then
-    self:import(NullableFQCN)
+    self:import(NullableFQN)
     table.insert(firstLineBuf, #firstLineBuf + 1, '@Nullable')
   end
   table.insert(firstLineBuf, #firstLineBuf + 1, spec.returnSpec.returnType)
   table.insert(firstLineBuf, #firstLineBuf + 1, spec.methodName)
   table.insert(firstLineBuf, #firstLineBuf + 1, '(')
-  
-  for i, param in ipairs(spec.params) do
-    if param.optional then
-      self:import(NullableFQCN)
-      table.insert(firstLineBuf, #firstLineBuf + 1, '@Nullable')
-    end
-    table.insert(firstLineBuf, #firstLineBuf + 1, param.paramType)
-    table.insert(firstLineBuf, #firstLineBuf + 1, param.name)
-    if i < #spec.params then
-      table.insert(firstLineBuf, #firstLineBuf + 1, ',')
-    end
-    if param.defaultValue then
-      codeNode:joinleft(JavaNode:new()
-        :insertleft(string.format('if (%s == null) {', param.name))
-        :insertright('}')
-        :child(JavaNode:new():insertleft(string.format('%s = %s;', param.name, param.defaultValue)))
-      )
-    end
-  end
-
-  table.insert(firstLineBuf, #firstLineBuf + 1, ')')
-  table.insert(firstLineBuf, #firstLineBuf + 1, '{')
+  self:generateMethodParams(spec.params, firstLineBuf, codeNode)
+  table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
 
   if spec.code then
     codeNode:insertleft(spec.code)
@@ -267,6 +280,39 @@ const function JavaNode:method(spec: JavaMethodSpec)
 
   self:child(methodNode)
   table.insert(self.methods, #self.methods + 1, spec)
+  return self
+end
+
+const function JavaNode:constructor(spec: JavaConstructorSpec?)
+  spec = spec or {}
+  spec.params = spec.params or {}
+
+  local firstLineBuf: {string} = {}
+  local codeNode = JavaNode:new()
+
+  if spec.visibility then
+    if isVisibilitySpecInvalid(spec.visibility) then
+      error(string.format('Constructor for class %s has invalid visibility: "%s"', tostring(self.className), tostring(spec.visibility)), 2)
+    end
+    table.insert(firstLineBuf, #firstLineBuf + 1, spec.visibility)
+  end
+
+  table.insert(firstLineBuf, #firstLineBuf + 1, self.className)
+  table.insert(firstLineBuf, #firstLineBuf + 1, '(')
+  self:generateMethodParams(spec.params, firstLineBuf, codeNode)
+  table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
+
+  if spec.code then
+    codeNode:insertleft(spec.code)
+  end
+
+  local constructorNode: JavaNode = JavaNode:new()
+    :insertleft(table.concat(firstLineBuf, ' '))
+    :insertright('}')
+    :child(codeNode)    
+
+  self:child(constructorNode)
+
   return self
 end
 

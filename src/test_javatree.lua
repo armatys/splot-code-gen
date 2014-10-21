@@ -282,4 +282,98 @@ public class Test {
   }
 }]], code)
   end)
+
+  it('should create a public class with an empty constructor', function()
+    local code = JavaNode:newclass('Test', {visibility = 'public'})
+      :constructor()
+      :code()
+    assert.is.equals([[
+public class Test {
+  Test ( ) {
+  }
+}]], code)
+  end)
+
+  it('should create a public class with an empty protected constructor', function()
+    local code = JavaNode:newclass('Test', {visibility = 'public'})
+      :constructor({visibility = 'protected'})
+      :code()
+    assert.is.equals([[
+public class Test {
+  protected Test ( ) {
+  }
+}]], code)
+  end)
+
+  it('should create a public class with a custom public constructor', function()
+    local code = JavaNode:newclass('Test', {visibility = 'public'})
+      :constructor({
+        visibility = 'public',
+        code = [[
+super();
+]]
+      })
+      :code()
+    assert.is.equals([[
+public class Test {
+  public Test ( ) {
+    super();
+  }
+}]], code)
+  end)
+
+  it('should create a public class with a custom public constructor with params and a field', function()
+    local code = JavaNode:newclass('Test', {visibility = 'public'})
+      :field({fieldName='answer', fieldType='int'})
+      :constructor({
+        visibility = 'public',
+        params = { {name='answer', paramType='int'} },
+        code = [[
+mAnswer = answer;
+]]
+      })
+      :code()
+    assert.is.equals([[
+public class Test {
+  int mAnswer ;
+  public Test ( int answer ) {
+    mAnswer = answer;
+  }
+}]], code)
+  end)
+
+  it('should create a public class with a custom constructor with optional params', function()
+    local code = JavaNode:newclass('Test', {visibility = 'public'})
+      :constructor({
+        params = { {name='answer', paramType='int'}, {name='text', paramType='String', optional=true} },
+        code = [[
+// Custom constructor
+]]
+      })
+      :code()
+    assert.is.equals([[
+import javax.annotation.Nullable;
+public class Test {
+  Test ( int answer , @Nullable String text ) {
+    // Custom constructor
+  }
+}]], code)
+  end)
+
+  it('should create a class with an empty constructor with optional param and default value', function()
+    local code = JavaNode:newclass('Test', {visibility = 'public'})
+      :constructor({
+        params = { {name='text', paramType='String', optional=true, defaultValue='"Hi!"'} },
+      })
+      :code()
+    assert.is.equals([[
+import javax.annotation.Nullable;
+public class Test {
+  Test ( @Nullable String text ) {
+    if (text == null) {
+      text = "Hi!";
+    }
+  }
+}]], code)
+  end)
 end)

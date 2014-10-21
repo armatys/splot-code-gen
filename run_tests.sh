@@ -3,12 +3,9 @@
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-pushd "${DIR}/src"
+SRC_DIR="${DIR}/src"
 
-tlc -o codetree.lua codetree.tl
-tlc -o javatree.lua javatree.tl
+LUA_PATH="${SRC_DIR}/?.lua;;" tlc -o "${SRC_DIR}/codetree.lua" "${SRC_DIR}/codetree.tl"
+LUA_PATH="${SRC_DIR}/?.lua;;" tlc -o "${SRC_DIR}/javatree.lua" "${SRC_DIR}/javatree.tl"
 
-busted test_codetree.lua
-busted test_javatree.lua
-
-popd
+busted --cwd="${DIR}/" --pattern="test_" "${SRC_DIR}"
