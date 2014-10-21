@@ -43,18 +43,28 @@ Node["joinright"] = function (self, node)
   end
   return self
 end
-local function iterateChildren (root_children, level, code)
-  for _, childnode in ipairs(root_children) do
+local function iterateChildren (children, level, code)
+  local lines = {}
+  for _, childnode in ipairs(children) do
     local codelines = childnode:tree(level)
     for _, line in ipairs(codelines) do
-      table["insert"](code,#(code) + 1,line)
+      local canInsert = true
+      if childnode["unique"] then
+        if lines[line] then
+          canInsert = false
+        end
+        lines[line] = true
+      end
+      if canInsert then
+        table["insert"](code,#(code) + 1,line)
+      end
     end
   end
 end
 local function iterateContents (contents, level, code)
   local whitespace = string["rep"]("  ",level)
   for _, v in ipairs(contents) do
-    for line in string["gmatch"](v,"(.-)$") do
+    for line in string["gmatch"](v,"[^\n]+") do
       if not (line:match("^%s*$")) then
         table["insert"](code,#(code) + 1,whitespace .. line)
       end

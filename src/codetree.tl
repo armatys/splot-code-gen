@@ -6,6 +6,7 @@ local interface Node
   right_contents: {string}
   children: {Node}
   root_children: {Node}
+  unique: boolean?
 
   const new:() => (self)
   const insertleft:(string, number?) => (self)
@@ -68,11 +69,21 @@ const function Node:joinright(node): self
   return self
 end
 
-local function iterateChildren(root_children: {Node}, level: number, code: {string})
-  for _, childnode in ipairs(root_children) do
+local function iterateChildren(children: {Node}, level: number, code: {string})
+  local lines: {string: boolean} = {}
+  for _, childnode in ipairs(children) do
     local codelines = childnode:tree(level)
     for _, line in ipairs(codelines) do
-      table.insert(code, #code + 1, line)
+      local canInsert = true
+      if childnode.unique then
+        if lines[line] then
+          canInsert = false
+        end
+        lines[line] = true
+      end
+      if canInsert then
+        table.insert(code, #code + 1, line)
+      end
     end
   end
 end
@@ -80,7 +91,7 @@ end
 local function iterateContents(contents: {string}, level: number, code: {string})
   local whitespace: string = string.rep('  ', level)
   for _, v in ipairs(contents) do
-    for line in string.gmatch(v, '(.-)$') do
+    for line in string.gmatch(v, '[^\n]+') do
       if not line:match('^%s*$') then
         table.insert(code, #code + 1, whitespace .. line)
       end
