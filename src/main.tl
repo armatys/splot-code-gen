@@ -13,7 +13,7 @@ local STRICT = false
 
 local interface ProgramGenerator
   name: string
-  process: (string, string, {any: any}, {any: any}) -> (string)
+  process: (string, string, {any: any}, {any: any}) -> (string) -- luaModuleName, outModuleName, plainAst, typecheckedAst
 end
 
 local interface ProgramArgs
