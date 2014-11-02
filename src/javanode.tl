@@ -56,7 +56,20 @@ local interface JavaNode
   className: string?
   fields: {JavaFieldSpec}
   methods: {JavaMethodSpec}
+  
   const new:() => (self)
+
+  -- superclass methods
+  const insertleft:(string, number?) => (self)
+  const insertright:(string, number?) => (self)
+  const child:(Node) => (self)
+  const rootchild:(Node) => (self)
+  const joinleft:(Node) => (self)
+  const joinright:(Node) => (self)
+  const tree:(number?) => ({string})
+  const code:() => (string)
+
+  -- new methods
   const newclass:(string, JavaClassDescriptor?) => (self)
   const import:(string) => (self)
 end
