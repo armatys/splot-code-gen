@@ -1,5 +1,5 @@
-local javatree = require 'javatree'
-local JavaNode = javatree.JavaNode
+local javautils = require 'javautils'
+local JavaNode = require 'javanode'
 local table = require 'table'
 
 describe('Test Java code generator.', function()
@@ -247,7 +247,7 @@ public class Test {
 
   it('should create a public class with a private field with a custom public getter', function()
     local fieldName = 'text'
-    local varName = javatree.makeFieldVarName(fieldName)
+    local varName = javautils.makeFieldVarName(fieldName)
     local getterCode = string.format([[
 System.out.println("Getter");
 return %s;]], varName)
@@ -266,7 +266,7 @@ public class Test {
 
   it('should create a public class with a private field with a custom public setter', function()
     local fieldName = 'text'
-    local varName = javatree.makeFieldVarName(fieldName)
+    local varName = javautils.makeFieldVarName(fieldName)
     local setterCode = string.format([[
 System.out.println("Setter");
 %s = %s;]], varName, fieldName)

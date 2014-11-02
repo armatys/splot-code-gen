@@ -1,4 +1,4 @@
-local Node = require 'codetree'.Node
+local Node = require 'node'
 local table = require 'table'
 
 local function makecode(fn)

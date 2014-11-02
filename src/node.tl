@@ -22,7 +22,6 @@ end
 local Node = { left_contents = {}, right_contents = {}, children = {}, root_children = {} }
 
 const function Node:new(): self
-  local children: {Node} = {}
   local s = setmetatable({}, {__index = self})
   s.left_contents = {}
   s.right_contents = {}
@@ -122,4 +121,4 @@ const function Node:code()
   return table.concat(t, '\n')
 end
 
-return {Node = Node}
+return Node

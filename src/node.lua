@@ -3,7 +3,6 @@ local table = require("table")
 
 local Node = {["left_contents"] = {}, ["right_contents"] = {}, ["children"] = {}, ["root_children"] = {}}
 Node["new"] = function (self)
-  local children = {}
   local s = setmetatable({},{["__index"] = self})
   s["left_contents"] = {}
   s["right_contents"] = {}
@@ -89,5 +88,5 @@ Node["code"] = function (self)
   local t = self:tree()
   return table["concat"](t,"\n")
 end
-return {["Node"] = Node}
+return Node
 

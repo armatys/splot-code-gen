@@ -1,4 +1,5 @@
-local Node = require("codetree")["Node"]
+local javautils = require("javautils")
+local Node = require("node")
 local string = require("string")
 local NullableFQN = "javax.annotation.Nullable"
 
@@ -61,15 +62,9 @@ JavaNode["import"] = function (self, fqn)
   self:rootchild(node)
   return self
 end
-local function makeAccessorName (prefix, fieldName)
-  return table["concat"]({prefix, fieldName:upper():sub(1,1), fieldName:sub(2)},"")
-end
-local function makeFieldVarName (fieldName)
-  return table["concat"]({"m", fieldName:upper():sub(1,1), fieldName:sub(2)},"")
-end
 local function generateGetterCode (fieldSpec)
   if type(fieldSpec["getter"]) == "boolean" then
-    local fieldVarName = makeFieldVarName(fieldSpec["fieldName"])
+    local fieldVarName = javautils["makeFieldVarName"](fieldSpec["fieldName"])
     return table["concat"]({"return", fieldVarName, ";"}," ")
   else
     return fieldSpec["getter"]
@@ -77,7 +72,7 @@ local function generateGetterCode (fieldSpec)
 end
 local function generateSetterCode (fieldSpec)
   if type(fieldSpec["setter"]) == "boolean" then
-    local fieldVarName = makeFieldVarName(fieldSpec["fieldName"])
+    local fieldVarName = javautils["makeFieldVarName"](fieldSpec["fieldName"])
     return table["concat"]({fieldVarName, "=", fieldSpec["fieldName"], ";"}," ")
   else
     return fieldSpec["setter"]
@@ -98,7 +93,7 @@ local function generateField (fieldSpec)
     table["insert"](declBuf,#(declBuf) + 1,"@Nullable")
   end
   table["insert"](declBuf,#(declBuf) + 1,fieldSpec["fieldType"])
-  local fieldVarName = makeFieldVarName(fieldSpec["fieldName"])
+  local fieldVarName = javautils["makeFieldVarName"](fieldSpec["fieldName"])
   table["insert"](declBuf,#(declBuf) + 1,fieldVarName)
   if fieldSpec["fieldInit"] then
     table["insert"](declBuf,#(declBuf) + 1,"=")
@@ -113,13 +108,13 @@ JavaNode["field"] = function (self, fieldSpec)
     self:import(NullableFQN)
   end
   if fieldSpec["getter"] then
-    local accessorName = makeAccessorName("get",fieldSpec["fieldName"])
+    local accessorName = javautils["makeAccessorName"]("get",fieldSpec["fieldName"])
     local code = generateGetterCode(fieldSpec)
     local spec = {["methodName"] = accessorName, ["returnSpec"] = {["returnType"] = fieldSpec["fieldType"], ["optional"] = fieldSpec["optional"]}, ["params"] = {}, ["visibility"] = fieldSpec["getterVisibility"], ["static"] = fieldSpec["static"], ["code"] = code}
     self:method(spec)
   end
   if fieldSpec["setter"] then
-    local accessorName = makeAccessorName("set",fieldSpec["fieldName"])
+    local accessorName = javautils["makeAccessorName"]("set",fieldSpec["fieldName"])
     local code = generateSetterCode(fieldSpec)
     local spec = {["methodName"] = accessorName, ["returnSpec"] = {["returnType"] = "void", ["optional"] = false}, ["params"] = {{["name"] = fieldSpec["fieldName"], ["paramType"] = fieldSpec["fieldType"], ["optional"] = fieldSpec["optional"]}}, ["visibility"] = fieldSpec["setterVisibility"], ["static"] = fieldSpec["static"], ["code"] = code}
     self:method(spec)
@@ -195,5 +190,5 @@ JavaNode["constructor"] = function (self, spec)
   self:child(constructorNode)
   return self
 end
-return {["JavaNode"] = JavaNode, ["makeFieldVarName"] = makeFieldVarName}
+return JavaNode
 
