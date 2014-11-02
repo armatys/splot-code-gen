@@ -2,6 +2,34 @@ local string = require("string")
 local table = require("table")
 
 local Node = {["left_contents"] = {}, ["right_contents"] = {}, ["children"] = {}, ["root_children"] = {}}
+local function iterateChildren (children, level, code)
+  local lines = {}
+  for _, childnode in ipairs(children) do
+    local codelines = childnode:tree(level)
+    for _, line in ipairs(codelines) do
+      local canInsert = true
+      if childnode["unique"] then
+        if lines[line] then
+          canInsert = false
+        end
+        lines[line] = true
+      end
+      if canInsert then
+        table["insert"](code,#(code) + 1,line)
+      end
+    end
+  end
+end
+local function iterateContents (contents, level, code)
+  local whitespace = string["rep"]("  ",level)
+  for _, v in ipairs(contents) do
+    for line in string["gmatch"](v,"[^\n]+") do
+      if not (line:match("^%s*$")) then
+        table["insert"](code,#(code) + 1,whitespace .. line)
+      end
+    end
+  end
+end
 Node["new"] = function (self)
   local s = setmetatable({},{["__index"] = self})
   s["left_contents"] = {}
@@ -41,34 +69,6 @@ Node["joinright"] = function (self, node)
     table["insert"](self["right_contents"],#(self["right_contents"]) + 1,v)
   end
   return self
-end
-local function iterateChildren (children, level, code)
-  local lines = {}
-  for _, childnode in ipairs(children) do
-    local codelines = childnode:tree(level)
-    for _, line in ipairs(codelines) do
-      local canInsert = true
-      if childnode["unique"] then
-        if lines[line] then
-          canInsert = false
-        end
-        lines[line] = true
-      end
-      if canInsert then
-        table["insert"](code,#(code) + 1,line)
-      end
-    end
-  end
-end
-local function iterateContents (contents, level, code)
-  local whitespace = string["rep"]("  ",level)
-  for _, v in ipairs(contents) do
-    for line in string["gmatch"](v,"[^\n]+") do
-      if not (line:match("^%s*$")) then
-        table["insert"](code,#(code) + 1,whitespace .. line)
-      end
-    end
-  end
 end
 Node["tree"] = function (self, level)
   level = level or 0

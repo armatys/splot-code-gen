@@ -21,6 +21,36 @@ end
 
 local Node = { left_contents = {}, right_contents = {}, children = {}, root_children = {} }
 
+local function iterateChildren(children: {Node}, level: number, code: {string})
+  local lines: {string: boolean} = {}
+  for _, childnode in ipairs(children) do
+    local codelines = childnode:tree(level)
+    for _, line in ipairs(codelines) do
+      local canInsert = true
+      if childnode.unique then
+        if lines[line] then
+          canInsert = false
+        end
+        lines[line] = true
+      end
+      if canInsert then
+        table.insert(code, #code + 1, line)
+      end
+    end
+  end
+end
+
+local function iterateContents(contents: {string}, level: number, code: {string})
+  local whitespace: string = string.rep('  ', level)
+  for _, v in ipairs(contents) do
+    for line in string.gmatch(v, '[^\n]+') do
+      if not line:match('^%s*$') then
+        table.insert(code, #code + 1, whitespace .. line)
+      end
+    end
+  end
+end
+
 const function Node:new(): self
   local s = setmetatable({}, {__index = self})
   s.left_contents = {}
@@ -66,36 +96,6 @@ const function Node:joinright(node): self
     table.insert(self.right_contents, #self.right_contents + 1, v)
   end
   return self
-end
-
-local function iterateChildren(children: {Node}, level: number, code: {string})
-  local lines: {string: boolean} = {}
-  for _, childnode in ipairs(children) do
-    local codelines = childnode:tree(level)
-    for _, line in ipairs(codelines) do
-      local canInsert = true
-      if childnode.unique then
-        if lines[line] then
-          canInsert = false
-        end
-        lines[line] = true
-      end
-      if canInsert then
-        table.insert(code, #code + 1, line)
-      end
-    end
-  end
-end
-
-local function iterateContents(contents: {string}, level: number, code: {string})
-  local whitespace: string = string.rep('  ', level)
-  for _, v in ipairs(contents) do
-    for line in string.gmatch(v, '[^\n]+') do
-      if not line:match('^%s*$') then
-        table.insert(code, #code + 1, whitespace .. line)
-      end
-    end
-  end
 end
 
 const function Node:tree(level: number?)
