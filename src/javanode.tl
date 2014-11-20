@@ -51,52 +51,275 @@ local interface JavaConstructorSpec
   code: string?
 end
 
-local interface JavaNode
+interface JavaNode
   class: JavaClassDescriptor?
   className: string?
   fields: {JavaFieldSpec}
   methods: {JavaMethodSpec}
-  
+  node: Node
+
   const new:() => (self)
-
-  -- superclass methods
-  const insertleft:(string, number?) => (self)
-  const insertright:(string, number?) => (self)
   const child:(Node) => (self)
-  const rootchild:(Node) => (self)
-  const joinleft:(Node) => (self)
-  const joinright:(Node) => (self)
-  const tree:(number?) => ({string})
   const code:() => (string)
-
-  -- new methods
-  const newclass:(string, JavaClassDescriptor?) => (self)
+  const constructor:(JavaConstructorSpec?) => (self)
+  const field:(JavaFieldSpec) => (self)
+  const generateMethodParams:({JavaMethodParam}?, {string}) => (Node)
   const import:(string) => (self)
+  const method:(JavaMethodSpec) => (self)
+  const setclass:(string, JavaClassDescriptor?) => (self)
 end
 
-local function isVisibilitySpecInvalid(visibility)
+
+local function isVisibilitySpecInvalid(visibility: string?): boolean
   return visibility ~= 'public' and visibility ~= 'private' and visibility ~= 'protected'
 end
 
-local JavaNode = setmetatable({
-    class = nil,
-    className = nil,
-    fields = {},
-    methods = {}
-  }, { __index = Node })
+local function generateGetterCode(fieldSpec: JavaFieldSpec): string?
+  local getter: string|boolean? = fieldSpec.getter
+  if type(getter) == 'boolean' then
+    local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.fieldName)
+    return table.concat({'return', fieldVarName, ';'}, ' ')
+  elseif type(getter) == 'string' then
+    return getter
+  else
+    return nil
+  end
+end
+
+local function generateSetterCode(fieldSpec: JavaFieldSpec): string?
+  local setter: string|boolean? = fieldSpec.setter
+  if type(setter) == 'boolean' then
+    local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.fieldName)
+    return table.concat({fieldVarName, '=', fieldSpec.fieldName, ';'}, ' ')
+  elseif type(setter) == 'string' then
+    return setter
+  else
+    return nil
+  end
+end
+
+local function generateField(fieldSpec: JavaFieldSpec): Node
+  local declBuf: {string} = {}
+  if fieldSpec.visibility then
+    if isVisibilitySpecInvalid(fieldSpec.visibility) then
+      error(string.format('Field %s has invalid visibility: "%s"', fieldSpec.fieldName, tostring(fieldSpec.visibility)), 3)
+    end
+    table.insert(declBuf, #declBuf + 1, fieldSpec.visibility)
+  end
+  if fieldSpec.static then
+    table.insert(declBuf, #declBuf + 1, 'static')
+  end
+  if fieldSpec.optional then
+    table.insert(declBuf, #declBuf + 1, '@Nullable')
+  end
+  table.insert(declBuf, #declBuf + 1, fieldSpec.fieldType)
+  local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.fieldName)
+  table.insert(declBuf, #declBuf + 1, fieldVarName)
+  if fieldSpec.fieldInit then
+    table.insert(declBuf, #declBuf + 1, '=')
+    table.insert(declBuf, #declBuf + 1, fieldSpec.fieldInit)
+  end
+  table.insert(declBuf, #declBuf + 1, ';')
+  local node: Node = Node:new()
+  node:insertleft(table.concat(declBuf, ' '))
+  return node
+end
+
+
+local _class: JavaClassDescriptor? = nil
+local _className: string? = nil
+local _fields: {JavaFieldSpec} = {}
+local _methods: {JavaMethodSpec} = {}
+local _node: Node = Node:new()
+
+local JavaNode = {}
+JavaNode.class = _class
+JavaNode.className = _className
+JavaNode.fields = _fields
+JavaNode.methods = _methods
+JavaNode.node = _node
 
 const function JavaNode:new(): self
-  local c = setmetatable(Node:new(), { __index = self })
-  c.class = nil
-  c.className = nil
-  c.fields = {}
-  c.methods = {}
+  local c = setmetatable({}, { __index = self })
+
+  local _class: JavaClassDescriptor? = nil
+  local _className: string? = nil
+  local _fields: {JavaFieldSpec} = {}
+  local _methods: {JavaMethodSpec} = {}
+  local _node: Node = Node:new()
+
+  c.class = _class
+  c.className = _className
+  c.fields = _fields
+  c.methods = _methods
+  c.node = _node
   return c
 end
 
-const function JavaNode:newclass(className: string, d: JavaClassDescriptor?)
-  local c = self:new()
+const function JavaNode:child(node: Node): self
+  self.node:child(node)
+  return self
+end
 
+const function JavaNode:code(): string
+  return self.node:code()
+end
+
+const function JavaNode:import(fqn: string)
+  local line = string.format('import %s;', fqn)
+  local node = Node:new()
+  node:insertleft(line)
+  node.unique = true
+  self.node:rootchild(node)
+  return self
+end
+
+const function JavaNode:generateMethodParams(_params: {JavaMethodParam}?, buf: {string}): Node
+  local codeNode: Node = Node:new()
+  local params: {JavaMethodParam} = _params or {}
+
+  for i, param in ipairs(params) do
+    if param.optional then
+      JavaNode.import(self, NullableFQN) --self:import(NullableFQN)
+      table.insert(buf, #buf + 1, '@Nullable')
+    end
+    table.insert(buf, #buf + 1, param.paramType)
+    table.insert(buf, #buf + 1, param.name)
+    if i < #params then
+      table.insert(buf, #buf + 1, ',')
+    end
+    if param.defaultValue then
+      local ifContentNode: Node = Node:new()
+      ifContentNode:insertleft(string.format('%s = %s;', param.name, param.defaultValue))
+
+      local ifNode: Node = Node:new()
+      ifNode:insertleft(string.format('if (%s == null) {', param.name))
+      ifNode:insertright('}')
+      ifNode:child(ifContentNode)
+
+      codeNode:joinleft(ifNode)
+    end
+  end
+  return codeNode
+end
+
+const function JavaNode:constructor(s: JavaConstructorSpec?): self
+  local spec: JavaConstructorSpec = s or {params=nil, visibility=nil, code=nil}
+  spec.params = spec.params or {}
+
+  local firstLineBuf: {string} = {}
+
+  if spec.visibility then
+    if isVisibilitySpecInvalid(spec.visibility) then
+      error(string.format('Constructor for class %s has invalid visibility: "%s"', tostring(self.className), tostring(spec.visibility)), 2)
+    end
+    table.insert(firstLineBuf, #firstLineBuf + 1, spec.visibility)
+  end
+
+  table.insert(firstLineBuf, #firstLineBuf + 1, self.className)
+  table.insert(firstLineBuf, #firstLineBuf + 1, '(')
+  local codeNode: Node = JavaNode.generateMethodParams(self, spec.params, firstLineBuf) --self:generateMethodParams(spec.params, firstLineBuf, codeNode)
+  table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
+
+  local code: string? = spec.code
+  if type(code) == 'string' then
+    codeNode:insertleft(code)
+  end
+
+  local constructorNode: Node = Node:new()
+  constructorNode:insertleft(table.concat(firstLineBuf, ' '))
+  constructorNode:insertright('}')
+  constructorNode:child(codeNode)    
+
+  self.node:child(constructorNode)
+
+  return self
+end
+
+const function JavaNode:method(spec: JavaMethodSpec): self
+  local firstLineBuf: {string} = {}
+  spec.params = spec.params or {}
+
+  if spec.visibility then
+    if isVisibilitySpecInvalid(spec.visibility) then
+      error(string.format('Method %s has invalid visibility: "%s"', spec.methodName, tostring(spec.visibility)), 2)
+    end
+    table.insert(firstLineBuf, #firstLineBuf + 1, spec.visibility)
+  end
+
+  if spec.static then
+    table.insert(firstLineBuf, #firstLineBuf + 1, 'static')
+  end
+
+  if spec.returnSpec.optional then
+    JavaNode.import(self, NullableFQN) --self:import(NullableFQN)
+    table.insert(firstLineBuf, #firstLineBuf + 1, '@Nullable')
+  end
+  table.insert(firstLineBuf, #firstLineBuf + 1, spec.returnSpec.returnType)
+  table.insert(firstLineBuf, #firstLineBuf + 1, spec.methodName)
+  table.insert(firstLineBuf, #firstLineBuf + 1, '(')
+  local codeNode: Node = JavaNode.generateMethodParams(self, spec.params, firstLineBuf) --self:generateMethodParams(spec.params, firstLineBuf)
+  table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
+
+  local code: string? = spec.code
+  if type(code) == 'string' then
+    codeNode:insertleft(code)
+  end
+
+  local methodNode = Node:new()
+  methodNode:insertleft(table.concat(firstLineBuf, ' '))
+  methodNode:insertright('}')
+  methodNode:child(codeNode)
+
+  self.node:child(methodNode)
+  table.insert(self.methods, #self.methods + 1, spec)
+  return self
+end
+
+const function JavaNode:field(fieldSpec: JavaFieldSpec): self
+  self.node:child(generateField(fieldSpec))
+  if fieldSpec.optional then
+    JavaNode.import(self, NullableFQN) --self:import(NullableFQN)
+  end
+
+  if fieldSpec.getter then
+    local accessorName: string = javautils.makeAccessorName('get', fieldSpec.fieldName)
+    local code = generateGetterCode(fieldSpec)
+    if code then
+      local spec: JavaMethodSpec = {
+        methodName = accessorName,
+        returnSpec = {returnType = fieldSpec.fieldType, optional = fieldSpec.optional},
+        params = {},
+        visibility = fieldSpec.getterVisibility,
+        static = fieldSpec.static,
+        code = code
+      }
+      JavaNode.method(self, spec) --self:method(spec)
+    end
+  end
+
+  if fieldSpec.setter then
+    local accessorName = javautils.makeAccessorName('set', fieldSpec.fieldName)
+    local code = generateSetterCode(fieldSpec)
+    if code then
+      local spec: JavaMethodSpec = {
+        methodName = accessorName,
+        returnSpec = {returnType = 'void', optional = false},
+        params = { {name = fieldSpec.fieldName, paramType = fieldSpec.fieldType, optional = fieldSpec.optional} },
+        visibility = fieldSpec.setterVisibility,
+        static = fieldSpec.static,
+        code = code
+      }
+      JavaNode.method(self, spec) --self:method(spec)
+    end
+  end
+
+  table.insert(self.fields, #self.fields + 1, fieldSpec)
+
+  return self
+end
+
+const function JavaNode:setclass(className: string, d: JavaClassDescriptor?): self
   local descriptor: JavaClassDescriptor = d or {}
   descriptor.implements = descriptor.implements or {}
 
@@ -130,195 +353,11 @@ const function JavaNode:newclass(className: string, d: JavaClassDescriptor?)
   table.insert(firstLineBuf, #firstLineBuf + 1, '{')
 
   local line = table.concat(firstLineBuf, ' ')
-  c:insertleft(line)
-  c:insertright('}')
+  self.node:insertleft(line)
+  self.node:insertright('}')
 
-  c.class = d
-  c.className = className
-  return c
-end
-
-const function JavaNode:import(fqn: string)
-  local line = string.format('import %s;', fqn)
-  local node = JavaNode:new():insertleft(line)
-  node.unique = true
-  self:rootchild(node)
-  return self
-end
-
-local function generateGetterCode(fieldSpec: JavaFieldSpec)
-  if type(fieldSpec.getter) == 'boolean' then
-    local fieldVarName = javautils.makeFieldVarName(fieldSpec.fieldName)
-    return table.concat({'return', fieldVarName, ';'}, ' ')
-  else
-    return fieldSpec.getter
-  end
-end
-
-local function generateSetterCode(fieldSpec: JavaFieldSpec)
-  if type(fieldSpec.setter) == 'boolean' then
-    local fieldVarName = javautils.makeFieldVarName(fieldSpec.fieldName)
-    return table.concat({fieldVarName, '=', fieldSpec.fieldName, ';'}, ' ')
-  else
-    return fieldSpec.setter
-  end
-end
-
-local function generateField(fieldSpec: JavaFieldSpec)
-  local declBuf: {string} = {}
-  if fieldSpec.visibility then
-    if isVisibilitySpecInvalid(fieldSpec.visibility) then
-      error(string.format('Field %s has invalid visibility: "%s"', fieldSpec.fieldName, tostring(fieldSpec.visibility)), 3)
-    end
-    table.insert(declBuf, #declBuf + 1, fieldSpec.visibility)
-  end
-  if fieldSpec.static then
-    table.insert(declBuf, #declBuf + 1, 'static')
-  end
-  if fieldSpec.optional then
-    table.insert(declBuf, #declBuf + 1, '@Nullable')
-  end
-  table.insert(declBuf, #declBuf + 1, fieldSpec.fieldType)
-  local fieldVarName = javautils.makeFieldVarName(fieldSpec.fieldName)
-  table.insert(declBuf, #declBuf + 1, fieldVarName)
-  if fieldSpec.fieldInit then
-    table.insert(declBuf, #declBuf + 1, '=')
-    table.insert(declBuf, #declBuf + 1, fieldSpec.fieldInit)
-  end
-  table.insert(declBuf, #declBuf + 1, ';')
-  return JavaNode:new():insertleft(table.concat(declBuf, ' '))
-end
-
-const function JavaNode:field(fieldSpec: JavaFieldSpec)
-  self:child(generateField(fieldSpec))
-  if fieldSpec.optional then
-    self:import(NullableFQN)
-  end
-
-  if fieldSpec.getter then
-    local accessorName = javautils.makeAccessorName('get', fieldSpec.fieldName)
-    local code = generateGetterCode(fieldSpec)
-    local spec: JavaMethodSpec = {
-      methodName = accessorName,
-      returnSpec = {returnType = fieldSpec.fieldType, optional = fieldSpec.optional},
-      params = {},
-      visibility = fieldSpec.getterVisibility,
-      static = fieldSpec.static,
-      code = code
-    }
-    self:method(spec)
-  end
-
-  if fieldSpec.setter then
-    local accessorName = javautils.makeAccessorName('set', fieldSpec.fieldName)
-    local code = generateSetterCode(fieldSpec)
-    local spec: JavaMethodSpec = {
-      methodName = accessorName,
-      returnSpec = {returnType = 'void', optional = false},
-      params = { {name = fieldSpec.fieldName, paramType = fieldSpec.fieldType, optional = fieldSpec.optional} },
-      visibility = fieldSpec.setterVisibility,
-      static = fieldSpec.static,
-      code = code
-    }
-    self:method(spec)
-  end
-
-  table.insert(self.fields, #self.fields + 1, fieldSpec)
-
-  return self
-end
-
-const function JavaNode:generateMethodParams(params, buf, codeNode)
-  for i, param in ipairs(params) do
-    if param.optional then
-      self:import(NullableFQN)
-      table.insert(buf, #buf + 1, '@Nullable')
-    end
-    table.insert(buf, #buf + 1, param.paramType)
-    table.insert(buf, #buf + 1, param.name)
-    if i < #params then
-      table.insert(buf, #buf + 1, ',')
-    end
-    if param.defaultValue then
-      codeNode:joinleft(JavaNode:new()
-        :insertleft(string.format('if (%s == null) {', param.name))
-        :insertright('}')
-        :child(JavaNode:new():insertleft(string.format('%s = %s;', param.name, param.defaultValue)))
-      )
-    end
-  end
-end
-
-const function JavaNode:method(spec: JavaMethodSpec)
-  local firstLineBuf: {string} = {}
-  local codeNode = JavaNode:new()
-  spec.params = spec.params or {}
-
-  if spec.visibility then
-    if isVisibilitySpecInvalid(spec.visibility) then
-      error(string.format('Method %s has invalid visibility: "%s"', spec.methodName, tostring(spec.visibility)), 2)
-    end
-    table.insert(firstLineBuf, #firstLineBuf + 1, spec.visibility)
-  end
-
-  if spec.static then
-    table.insert(firstLineBuf, #firstLineBuf + 1, 'static')
-  end
-
-  if spec.returnSpec.optional then
-    self:import(NullableFQN)
-    table.insert(firstLineBuf, #firstLineBuf + 1, '@Nullable')
-  end
-  table.insert(firstLineBuf, #firstLineBuf + 1, spec.returnSpec.returnType)
-  table.insert(firstLineBuf, #firstLineBuf + 1, spec.methodName)
-  table.insert(firstLineBuf, #firstLineBuf + 1, '(')
-  self:generateMethodParams(spec.params, firstLineBuf, codeNode)
-  table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
-
-  if spec.code then
-    codeNode:insertleft(spec.code)
-  end
-
-  local methodNode: JavaNode = JavaNode:new()
-    :insertleft(table.concat(firstLineBuf, ' '))
-    :insertright('}')
-    :child(codeNode)
-
-  self:child(methodNode)
-  table.insert(self.methods, #self.methods + 1, spec)
-  return self
-end
-
-const function JavaNode:constructor(spec: JavaConstructorSpec?)
-  spec = spec or {}
-  spec.params = spec.params or {}
-
-  local firstLineBuf: {string} = {}
-  local codeNode = JavaNode:new()
-
-  if spec.visibility then
-    if isVisibilitySpecInvalid(spec.visibility) then
-      error(string.format('Constructor for class %s has invalid visibility: "%s"', tostring(self.className), tostring(spec.visibility)), 2)
-    end
-    table.insert(firstLineBuf, #firstLineBuf + 1, spec.visibility)
-  end
-
-  table.insert(firstLineBuf, #firstLineBuf + 1, self.className)
-  table.insert(firstLineBuf, #firstLineBuf + 1, '(')
-  self:generateMethodParams(spec.params, firstLineBuf, codeNode)
-  table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
-
-  if spec.code then
-    codeNode:insertleft(spec.code)
-  end
-
-  local constructorNode: JavaNode = JavaNode:new()
-    :insertleft(table.concat(firstLineBuf, ' '))
-    :insertright('}')
-    :child(codeNode)    
-
-  self:child(constructorNode)
-
+  self.class = descriptor
+  self.className = className
   return self
 end
 

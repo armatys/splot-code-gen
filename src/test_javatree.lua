@@ -9,35 +9,35 @@ describe('Test Java code generator.', function()
   end)
 
   it('should create a simple class', function()
-    local code = JavaNode:newclass('Test'):code()
+    local code = JavaNode:new():setclass('Test'):code()
     assert.is.equals([[
 class Test {
 }]], code)
   end)
 
   it('should create a public class', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'}):code()
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'}):code()
     assert.is.equals([[
 public class Test {
 }]], code)
   end)
 
   it('should create a static class', function()
-    local code = JavaNode:newclass('Test', {static = true}):code()
+    local code = JavaNode:new():setclass('Test', {static = true}):code()
     assert.is.equals([[
 static class Test {
 }]], code)
   end)
 
   it('should create a public static class', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public', static = true}):code()
+    local code = JavaNode:new():setclass('Test', {visibility = 'public', static = true}):code()
     assert.is.equals([[
 public static class Test {
 }]], code)
   end)
 
   it('should create a public class with import', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :import('java.util.ArrayList')
       :code()
     assert.is.equals([[
@@ -47,8 +47,8 @@ public class Test {
   end)
 
   it('should create a public class with an inner class', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
-      :child(JavaNode:newclass('InnerTest'))
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
+      :child(JavaNode:new():setclass('InnerTest').node)
       :code()
     assert.is.equals([[
 public class Test {
@@ -58,8 +58,8 @@ public class Test {
   end)
 
   it('should create a public class with a private inner class', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
-      :child(JavaNode:newclass('InnerTest', {visibility = 'private'}))
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
+      :child(JavaNode:new():setclass('InnerTest', {visibility = 'private'}).node)
       :code()
     assert.is.equals([[
 public class Test {
@@ -69,8 +69,8 @@ public class Test {
   end)
 
   it('should create a public class with a static and private inner class', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
-      :child(JavaNode:newclass('InnerTest', {static = true, visibility = 'private'}))
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
+      :child(JavaNode:new():setclass('InnerTest', {static = true, visibility = 'private'}).node)
       :code()
     assert.is.equals([[
 public class Test {
@@ -81,13 +81,13 @@ public class Test {
 
   it('should not accept an invalid visibility specifier', function()
     assert.has_error(function()
-      JavaNode:newclass('Test', {visibility = 'secret'})
+      JavaNode:new():setclass('Test', {visibility = 'secret'})
     end)
   end)
 
   it('should create a public class with an inner class with import', function()
-    local code = JavaNode:newclass('Test')
-      :child(JavaNode:newclass('InnerTest'):import('java.util.HashMap'))
+    local code = JavaNode:new():setclass('Test')
+      :child(JavaNode:new():setclass('InnerTest'):import('java.util.HashMap').node)
       :code()
     assert.is.equals([[
 import java.util.HashMap;
@@ -98,7 +98,7 @@ class Test {
   end)
 
   it('should create a public class with a field', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String'})
       :code()
     assert.is.equals([[
@@ -109,27 +109,27 @@ public class Test {
 
   it('should fail creating a public class with a field with invalid visibility', function()
     assert.has_error(function()
-      local code = JavaNode:newclass('Test', {visibility = 'public'})
+      local code = JavaNode:new():setclass('Test', {visibility = 'public'})
         :field({fieldName = 'text', fieldType = 'String', visibility = 'secret'})
     end)
   end)
 
   it('should fail creating getter with invalid visibility', function()
     assert.has_error(function()
-      local code = JavaNode:newclass('Test', {visibility = 'public'})
+      local code = JavaNode:new():setclass('Test', {visibility = 'public'})
         :field({fieldName = 'text', fieldType = 'String', getter = true, getterVisibility = 'secret'})
     end)
   end)
 
   it('should fail creating setter with invalid visibility', function()
     assert.has_error(function()
-      local code = JavaNode:newclass('Test', {visibility = 'public'})
+      local code = JavaNode:new():setclass('Test', {visibility = 'public'})
         :field({fieldName = 'text', fieldType = 'String', setter = true, setterVisibility = 'secret'})
     end)
   end)
 
   it('should create a public class with a private field', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private'})
       :code()
     assert.is.equals([[
@@ -139,7 +139,7 @@ public class Test {
   end)
 
   it('should create a public class with optional private field', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private', optional = true})
       :code()
     assert.is.equals([[
@@ -150,7 +150,7 @@ public class Test {
   end)
 
   it('should create a public class with a private field with a default getter', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private', getter = true})
       :code()
     assert.is.equals([[
@@ -163,7 +163,7 @@ public class Test {
   end)
 
   it('should create a public class with a private optional field with a default getter', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private', optional = true, getter = true})
       :code()
     assert.is.equals([[
@@ -177,7 +177,7 @@ public class Test {
   end)
 
   it('should create a public class with a private field with a public default getter', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private', getter = true, getterVisibility = 'public'})
       :code()
     assert.is.equals([[
@@ -190,7 +190,7 @@ public class Test {
   end)
 
   it('should create a public class with a private field with a default setter', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private', setter = true})
       :code()
     assert.is.equals([[
@@ -203,7 +203,7 @@ public class Test {
   end)
 
   it('should create a public class with an optional private field with default value and a default setter', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private', optional = true, fieldInit = '"hello"', setter = true})
       :code()
     assert.is.equals([[
@@ -217,7 +217,7 @@ public class Test {
   end)
 
   it('should create a public class with a private field with a public default setter', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private', setter = true, setterVisibility = 'public'})
       :code()
     assert.is.equals([[
@@ -230,7 +230,7 @@ public class Test {
   end)
 
   it('should create a public class with a private field with a default getter and setter', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = 'text', fieldType = 'String', visibility = 'private', getter = true, setter = true})
       :code()
     assert.is.equals([[
@@ -251,7 +251,7 @@ public class Test {
     local getterCode = string.format([[
 System.out.println("Getter");
 return %s;]], varName)
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = fieldName, fieldType = 'String', visibility = 'private', getterVisibility = 'public', getter = getterCode})
       :code()
     assert.is.equals([[
@@ -270,7 +270,7 @@ public class Test {
     local setterCode = string.format([[
 System.out.println("Setter");
 %s = %s;]], varName, fieldName)
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName = fieldName, fieldType = 'String', visibility = 'private', setterVisibility = 'public', setter = setterCode})
       :code()
     assert.is.equals([[
@@ -284,7 +284,7 @@ public class Test {
   end)
 
   it('should create a public class with an empty constructor', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :constructor()
       :code()
     assert.is.equals([[
@@ -295,7 +295,7 @@ public class Test {
   end)
 
   it('should create a public class with an empty protected constructor', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :constructor({visibility = 'protected'})
       :code()
     assert.is.equals([[
@@ -306,7 +306,7 @@ public class Test {
   end)
 
   it('should create a public class with a custom public constructor', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :constructor({
         visibility = 'public',
         code = [[
@@ -323,7 +323,7 @@ public class Test {
   end)
 
   it('should create a public class with a custom public constructor with params and a field', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :field({fieldName='answer', fieldType='int'})
       :constructor({
         visibility = 'public',
@@ -343,7 +343,7 @@ public class Test {
   end)
 
   it('should create a public class with a custom constructor with optional params', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :constructor({
         params = { {name='answer', paramType='int'}, {name='text', paramType='String', optional=true} },
         code = [[
@@ -361,7 +361,7 @@ public class Test {
   end)
 
   it('should create a class with an empty constructor with optional param and default value', function()
-    local code = JavaNode:newclass('Test', {visibility = 'public'})
+    local code = JavaNode:new():setclass('Test', {visibility = 'public'})
       :constructor({
         params = { {name='text', paramType='String', optional=true, defaultValue='"Hi!"'} },
       })

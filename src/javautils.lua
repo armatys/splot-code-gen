@@ -1,10 +1,11 @@
 local table = require("table")
-local _M = {}
-_M["makeAccessorName"] = function (prefix, fieldName)
-  return table["concat"]({prefix, fieldName:upper():sub(1,1), fieldName:sub(2)},"")
+local function makeAccessorName (prefix, fieldName)
+  local s = fieldName:upper()
+  return table["concat"]({prefix, s:sub(1,1), fieldName:sub(2)},"")
 end
-_M["makeFieldVarName"] = function (fieldName)
-  return table["concat"]({"m", fieldName:upper():sub(1,1), fieldName:sub(2)},"")
+local function makeFieldVarName (fieldName)
+  local s = fieldName:upper()
+  return table["concat"]({"m", s:sub(1,1), fieldName:sub(2)},"")
 end
-return _M
+return {["makeAccessorName"] = makeAccessorName, ["makeFieldVarName"] = makeFieldVarName}
 
