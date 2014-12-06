@@ -1,5 +1,4 @@
-local javatree = require 'javatree'
-local JavaNode = javatree.JavaNode
+local JavaNode = require 'javanode'
 local table = require 'table'
 
 local interface Context
@@ -9,24 +8,21 @@ local interface Context
   typecheckedAst: {any: any}
 end
 
-local function tinsert(t, el)
-  table.insert(t, #t + 1, el)
-end
-
-local function processTTable(context: Context, ttable: {any: any}, topLevel: boolean?)
-  local node = JavaNode:new()
-  node:import('pl.makenika.splot.LuaTable')
+local function processTTable(context: Context, ttable: {any: any}, topLevel: boolean?): JavaNode
+  local javaNode: JavaNode = JavaNode:new()
+  javaNode:package('io.splot.L')
+  javaNode:import('io.splot.LuaTable')
   
-  return node
+  return javaNode
 end
 
-local function findReturnNode(ast: {any: any}): (int, {any: any})?
+local function findReturnNode(ast: {any: any}): (number, any)?
   for i, v in ipairs(ast) do
     if v.tag == 'Return' then
       return i, v
     end
   end
-  return nil
+  return nil, 'Could not find the return node.'
 end
 
 local function process(luaModuleName: string, javaModuleName: string, plainAst: {any: any}, typecheckedAst: {any: any}): string
@@ -34,17 +30,18 @@ local function process(luaModuleName: string, javaModuleName: string, plainAst: 
     luaModuleName = luaModuleName,
     javaModuleName = javaModuleName,
     plainAst = plainAst,
-    typecheckedAst = typecheckedAst,
-    tree = JavaNode:new()
+    typecheckedAst = typecheckedAst
   }
   local i, retNode = findReturnNode(typecheckedAst)
   if not i then
-    error('Could not find the return node.', 2)
+    error(retNode, 2)
   end
 
-  local rootNode = processTTable(ctx, retNode, true)
-  return rootNode:code()
+  local rootNode: JavaNode = processTTable(ctx, retNode, true)
+  local code: string = rootNode:code()
+  return code
 end
+
 
 return {
   name = 'Java',

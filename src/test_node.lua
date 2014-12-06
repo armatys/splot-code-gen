@@ -109,6 +109,7 @@ describe('Test codetree generator.', function()
         :insertleft 'int calculate(int a, int b) {'
         :insertright '}'
         :child(Node:new():insertleft 'return a + b;')
+        :tree()
       )
       :code()
     assert.are.equals([[

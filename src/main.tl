@@ -16,17 +16,25 @@ local interface ProgramGenerator
   process: (string, string, {any: any}, {any: any}) -> (string) -- luaModuleName, outModuleName, plainAst, typecheckedAst
 end
 
-local interface ProgramArgs
-  inFilePath: string
-  outFilePath: string
-  luaModuleName: string
-end
-
 local function writeError(message: string)
   local oldStdOut = io.output()
   io.output(io.stderr)
   io.write(message .. '\n')
   io.output(oldStdOut)
+end
+
+local EmptyGenerator: ProgramGenerator = {
+  name = 'Empty Generator',
+  process = function(luaModuleName: string, outModuleName: string, plainAst: {any: any}, typecheckedAst: {any: any}): string
+    error('Could not infer the generator from the target file extension (java or swift).')
+    return ''
+  end
+}
+
+local interface ProgramArgs
+  inFilePath: string
+  outFilePath: string
+  luaModuleName: string
 end
 
 local function getContents(filename: string): string
@@ -75,21 +83,31 @@ local function getGenerator(outFilePath: string): ProgramGenerator?
   end
 end
 
-local function getPlainAst(subject: string, inFilePath: string, strict: boolean): {any: any}
+local function getPlainAst(subject: string, inFilePath: string, strict: boolean): ({any: any})?
   local subject: string = getContents(inFilePath)
   local plainAst: {any: any}?, errorMessage: string? = tlparser.parse(subject, inFilePath, strict)
   if plainAst then
     return plainAst
+  elseif errorMessage then
+    return nil, errorMessage
   else
-    writeError(string.format('Could not parse AST: %s', errorMessage))
-    os.exit(1)
+    return nil, 'Could not parse the file (report a bug)'
   end
 end
 
 local function runArguments(arguments: ProgramArgs)
   local subject: string = getContents(arguments.inFilePath)
-  local plainAst: {any: any} = getPlainAst(subject, arguments.inFilePath, STRICT)
-  local typecheckedAst: {any: any} = getPlainAst(subject, arguments.inFilePath, STRICT)
+  local plainAst: {any: any}?, err: string? = getPlainAst(subject, arguments.inFilePath, STRICT)
+  if not plainAst then
+    writeError(err or 'Error getting plain AST')
+    os.exit(1)
+  end
+
+  local typecheckedAst: {any: any}?, err: string? = getPlainAst(subject, arguments.inFilePath, STRICT)
+  if not typecheckedAst then
+    writeError(err or 'Error getting plain AST (typechecked)')
+    os.exit(1)
+  end
   local typecheckMessages: { {'tag': string, 'msg': string, 'l': number, 'c': number} } = tlchecker.typecheck(typecheckedAst, subject, STRICT)
   if #typecheckMessages > 0 then
     for k, v in pairs(typecheckMessages) do
@@ -98,22 +116,18 @@ local function runArguments(arguments: ProgramArgs)
     os.exit(1)
   end
 
-  local moduleName: string? = getModuleName(arguments.outFilePath)
-  local generator: ProgramGenerator? = getGenerator(arguments.outFilePath)
-  if generator and moduleName then
-    local ok, codeOrErr = pcall(generator.process, arguments.luaModuleName, moduleName, plainAst, typecheckedAst)
-    if ok then
-      setContents(codeOrErr, arguments.outFilePath)
-    else
-      writeError(string.format('Could not generate the code: %s', codeOrErr))
-      os.exit(1)
-    end
+  local moduleName: string = getModuleName(arguments.outFilePath) or ''
+  if #moduleName == 0 then
+    writeError('Could not infer the module name.')
+    os.exit(1)
+  end
+  local generator: ProgramGenerator = getGenerator(arguments.outFilePath) or EmptyGenerator
+
+  local ok, codeOrErr = pcall(generator.process, arguments.luaModuleName, moduleName, plainAst, typecheckedAst)
+  if ok then
+    setContents(codeOrErr, arguments.outFilePath)
   else
-    if not generator then
-      writeError('Could not infer the generator from the target file extension (java or swift).')
-    elseif not moduleName then
-      writeError('Could not infer the module name.')
-    end
+    writeError(string.format('Could not generate the code: %s', codeOrErr))
     os.exit(1)
   end
 end

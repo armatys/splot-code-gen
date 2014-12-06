@@ -12,9 +12,9 @@ interface Node
   const insertleft:(string, number?) => (self)
   const insertright:(string, number?) => (self)
   const child:(Node) => (self)
-  const rootchild:(Node) => (self)
-  const joinleft:(Node) => (self)
-  const joinright:(Node) => (self)
+  const rootchild:(Node, boolean?) => (self)
+  const joinleft:({string}) => (self)
+  const joinright:({string}) => (self)
   const tree:(number?) => ({string})
   const code:() => (string)
 end
@@ -63,41 +63,47 @@ Node.root_children = _root_children
 Node.unique = _unique
 
 const function Node:new(): self
-  local s = setmetatable({}, {__index = self})
-
+  local t = {}
   local _left_contents: {string} = {}
   local _right_contents: {string} = {}
   local _children: {Node} = {}
   local _root_children: {Node} = {}
   local _unique: boolean? = false
 
-  s.left_contents = _left_contents
-  s.right_contents = _right_contents
-  s.children = _children
-  s.root_children = _root_children
-  s.unique = _unique
+  t.left_contents = _left_contents
+  t.right_contents = _right_contents
+  t.children = _children
+  t.root_children = _root_children
+  t.unique = _unique
+
+  local s = setmetatable(t, {__index = self})
   return s
 end
 
 const function Node:insertleft(code: string, pos: number?): self
-  pos = pos or #self.left_contents + 1
-  table.insert(self.left_contents, pos, code)
+  local p: number = pos or #self.left_contents + 1
+  local contents: {string} = self.left_contents
+  table.insert(contents, p, code)
   return self
 end
 
 const function Node:insertright(code: string, pos: number?): self
-  pos = pos or #self.right_contents + 1
-  table.insert(self.right_contents, pos, code)
+  local p: number = pos or #self.right_contents + 1
+  local contents: {string} = self.right_contents
+  table.insert(contents, p, code)
   return self
 end
 
 const function Node:child(node: Node): self
-  table.insert(self.children, #self.children + 1, node)
+  local t: {Node} = self.children
+  table.insert(t, #t + 1, node)
   return self
 end
 
-const function Node:rootchild(node: Node): self
-  table.insert(self.root_children, #self.root_children + 1, node)
+const function Node:rootchild(node: Node, prepend: boolean?): self
+local t: {Node} = self.root_children
+  local pos: number = prepend and 1 or #t + 1
+  table.insert(t, pos, node)
   return self
 end
 
@@ -119,18 +125,18 @@ const function Node:tree(level: number?): {string}
   return code
 end
 
-const function Node:joinleft(node: Node): self
-  local t = Node.tree(node) --node:tree()
-  for _, v in ipairs(t) do
-    table.insert(self.left_contents, #self.left_contents + 1, v)
+const function Node:joinleft(tree: {string}): self
+  for _, v in ipairs(tree) do
+    local t: {string} = self.left_contents
+    table.insert(t, #t + 1, v)
   end
   return self
 end
 
-const function Node:joinright(node: Node): self
-  local t = Node.tree(node) --node:tree()
-  for _, v in ipairs(t) do
-    table.insert(self.right_contents, #self.right_contents + 1, v)
+const function Node:joinright(tree: {string}): self
+  for _, v in ipairs(tree) do
+    local t: {string} = self.right_contents
+    table.insert(t, #t + 1, v)
   end
   return self
 end
@@ -139,5 +145,6 @@ const function Node:code(): string
   local t = self:tree()
   return table.concat(t, '\n')
 end
+
 
 return Node

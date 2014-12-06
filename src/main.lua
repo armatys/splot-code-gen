@@ -10,13 +10,17 @@ local tlparser = require("typedlua.tlparser")
 local tlchecker = require("typedlua.tlchecker")
 local STRICT = false
 
-
 local function writeError (message)
   local oldStdOut = io["output"]()
   io["output"](io["stderr"])
   io["write"](message .. "\n")
   io["output"](oldStdOut)
 end
+local EmptyGenerator = {["name"] = "Empty Generator", ["process"] = function (luaModuleName, outModuleName, plainAst, typecheckedAst)
+  error("Could not infer the generator from the target file extension (java or swift).")
+  return ""
+end}
+
 local function getContents (filename)
   local file = assert(io["open"](filename,"r"),"Could not get the file contents")
   local contents = file:read("*a")
@@ -56,15 +60,24 @@ local function getPlainAst (subject, inFilePath, strict)
   local plainAst, errorMessage = tlparser["parse"](subject,inFilePath,strict)
   if plainAst then
     return plainAst
+  elseif errorMessage then
+    return nil, errorMessage
   else
-    writeError(string["format"]("Could not parse AST: %s",errorMessage))
-    os["exit"](1)
+    return nil, "Could not parse the file (report a bug)"
   end
 end
 local function runArguments (arguments)
   local subject = getContents(arguments["inFilePath"])
-  local plainAst = getPlainAst(subject,arguments["inFilePath"],STRICT)
-  local typecheckedAst = getPlainAst(subject,arguments["inFilePath"],STRICT)
+  local plainAst, err = getPlainAst(subject,arguments["inFilePath"],STRICT)
+  if not (plainAst) then
+    writeError(err or "Error getting plain AST")
+    os["exit"](1)
+  end
+  local typecheckedAst, err = getPlainAst(subject,arguments["inFilePath"],STRICT)
+  if not (typecheckedAst) then
+    writeError(err or "Error getting plain AST (typechecked)")
+    os["exit"](1)
+  end
   local typecheckMessages = tlchecker["typecheck"](typecheckedAst,subject,STRICT)
   if 0 < #(typecheckMessages) then
     for k, v in pairs(typecheckMessages) do
@@ -72,22 +85,17 @@ local function runArguments (arguments)
     end
     os["exit"](1)
   end
-  local moduleName = getModuleName(arguments["outFilePath"])
-  local generator = getGenerator(arguments["outFilePath"])
-  if generator and moduleName then
-    local ok, codeOrErr = pcall(generator["process"],arguments["luaModuleName"],moduleName,plainAst,typecheckedAst)
-    if ok then
-      setContents(codeOrErr,arguments["outFilePath"])
-    else
-      writeError(string["format"]("Could not generate the code: %s",codeOrErr))
-      os["exit"](1)
-    end
+  local moduleName = getModuleName(arguments["outFilePath"]) or ""
+  if #(moduleName) == 0 then
+    writeError("Could not infer the module name.")
+    os["exit"](1)
+  end
+  local generator = getGenerator(arguments["outFilePath"]) or EmptyGenerator
+  local ok, codeOrErr = pcall(generator["process"],arguments["luaModuleName"],moduleName,plainAst,typecheckedAst)
+  if ok then
+    setContents(codeOrErr,arguments["outFilePath"])
   else
-    if not (generator) then
-      writeError("Could not infer the generator from the target file extension (java or swift).")
-    elseif not (moduleName) then
-      writeError("Could not infer the module name.")
-    end
+    writeError(string["format"]("Could not generate the code: %s",codeOrErr))
     os["exit"](1)
   end
 end

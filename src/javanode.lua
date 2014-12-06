@@ -72,32 +72,44 @@ JavaNode["fields"] = _fields
 JavaNode["methods"] = _methods
 JavaNode["node"] = _node
 JavaNode["new"] = function (self)
-  local c = setmetatable({},{["__index"] = self})
   local _class = nil
   local _className = nil
   local _fields = {}
   local _methods = {}
   local _node = Node:new()
-  c["class"] = _class
-  c["className"] = _className
-  c["fields"] = _fields
-  c["methods"] = _methods
-  c["node"] = _node
-  return c
+  local t = {}
+  t["class"] = _class
+  t["className"] = _className
+  t["fields"] = _fields
+  t["methods"] = _methods
+  t["node"] = _node
+  local s = setmetatable(t,{["__index"] = self})
+  return s
 end
 JavaNode["child"] = function (self, node)
-  self["node"]:child(node)
+  local n = self["node"]
+  n:child(node)
   return self
 end
 JavaNode["code"] = function (self)
   return self["node"]:code()
 end
 JavaNode["import"] = function (self, fqn)
+  local selfNode = self["node"]
   local line = string["format"]("import %s;",fqn)
   local node = Node:new()
   node:insertleft(line)
   node["unique"] = true
-  self["node"]:rootchild(node)
+  selfNode:rootchild(node)
+  return self
+end
+JavaNode["package"] = function (self, fqn)
+  local selfNode = self["node"]
+  local line = string["format"]("package %s;",fqn)
+  local node = Node:new()
+  node:insertleft(line)
+  node["unique"] = true
+  selfNode:rootchild(node,true)
   return self
 end
 JavaNode["generateMethodParams"] = function (self, _params, buf)
@@ -105,7 +117,7 @@ JavaNode["generateMethodParams"] = function (self, _params, buf)
   local params = _params or {}
   for i, param in ipairs(params) do
     if param["optional"] then
-      JavaNode["import"](self,NullableFQN)
+      self["import"](self,NullableFQN)
       table["insert"](buf,#(buf) + 1,"@Nullable")
     end
     table["insert"](buf,#(buf) + 1,param["paramType"])
@@ -120,7 +132,7 @@ JavaNode["generateMethodParams"] = function (self, _params, buf)
       ifNode:insertleft(string["format"]("if (%s == null) {",param["name"]))
       ifNode:insertright("}")
       ifNode:child(ifContentNode)
-      codeNode:joinleft(ifNode)
+      codeNode:joinleft(ifNode:tree())
     end
   end
   return codeNode
@@ -137,7 +149,7 @@ JavaNode["constructor"] = function (self, s)
   end
   table["insert"](firstLineBuf,#(firstLineBuf) + 1,self["className"])
   table["insert"](firstLineBuf,#(firstLineBuf) + 1,"(")
-  local codeNode = JavaNode["generateMethodParams"](self,spec["params"],firstLineBuf)
+  local codeNode = self:generateMethodParams(spec["params"],firstLineBuf)
   table["insert"](firstLineBuf,#(firstLineBuf) + 1,") {")
   local code = spec["code"]
   if type(code) == "string" then
@@ -163,13 +175,13 @@ JavaNode["method"] = function (self, spec)
     table["insert"](firstLineBuf,#(firstLineBuf) + 1,"static")
   end
   if spec["returnSpec"]["optional"] then
-    JavaNode["import"](self,NullableFQN)
+    self:import(NullableFQN)
     table["insert"](firstLineBuf,#(firstLineBuf) + 1,"@Nullable")
   end
   table["insert"](firstLineBuf,#(firstLineBuf) + 1,spec["returnSpec"]["returnType"])
   table["insert"](firstLineBuf,#(firstLineBuf) + 1,spec["methodName"])
   table["insert"](firstLineBuf,#(firstLineBuf) + 1,"(")
-  local codeNode = JavaNode["generateMethodParams"](self,spec["params"],firstLineBuf)
+  local codeNode = self:generateMethodParams(spec["params"],firstLineBuf)
   table["insert"](firstLineBuf,#(firstLineBuf) + 1,") {")
   local code = spec["code"]
   if type(code) == "string" then
@@ -186,30 +198,34 @@ end
 JavaNode["field"] = function (self, fieldSpec)
   self["node"]:child(generateField(fieldSpec))
   if fieldSpec["optional"] then
-    JavaNode["import"](self,NullableFQN)
+    self:import(NullableFQN)
   end
   if fieldSpec["getter"] then
     local accessorName = javautils["makeAccessorName"]("get",fieldSpec["fieldName"])
     local code = generateGetterCode(fieldSpec)
     if code then
-      local spec = {["methodName"] = accessorName, ["returnSpec"] = {["returnType"] = fieldSpec["fieldType"], ["optional"] = fieldSpec["optional"]}, ["params"] = {}, ["visibility"] = fieldSpec["getterVisibility"], ["static"] = fieldSpec["static"], ["code"] = code}
-      JavaNode["method"](self,spec)
+      local returnSpec = {["returnType"] = fieldSpec["fieldType"], ["optional"] = fieldSpec["optional"]}
+      local params = nil
+      local spec = {["methodName"] = accessorName, ["returnSpec"] = returnSpec, ["params"] = params, ["visibility"] = fieldSpec["getterVisibility"], ["static"] = fieldSpec["static"], ["code"] = code}
+      self:method(spec)
     end
   end
   if fieldSpec["setter"] then
     local accessorName = javautils["makeAccessorName"]("set",fieldSpec["fieldName"])
     local code = generateSetterCode(fieldSpec)
     if code then
-      local spec = {["methodName"] = accessorName, ["returnSpec"] = {["returnType"] = "void", ["optional"] = false}, ["params"] = {{["name"] = fieldSpec["fieldName"], ["paramType"] = fieldSpec["fieldType"], ["optional"] = fieldSpec["optional"]}}, ["visibility"] = fieldSpec["setterVisibility"], ["static"] = fieldSpec["static"], ["code"] = code}
-      JavaNode["method"](self,spec)
+      local returnSpec = {["returnType"] = "void", ["optional"] = false}
+      local params = {{["name"] = fieldSpec["fieldName"], ["paramType"] = fieldSpec["fieldType"], ["optional"] = fieldSpec["optional"]}}
+      local spec = {["methodName"] = accessorName, ["returnSpec"] = returnSpec, ["params"] = params, ["visibility"] = fieldSpec["setterVisibility"], ["static"] = fieldSpec["static"], ["code"] = code}
+      self:method(spec)
     end
   end
-  table["insert"](self["fields"],#(self["fields"]) + 1,fieldSpec)
+  local fields = self["fields"]
+  table["insert"](fields,#(fields) + 1,fieldSpec)
   return self
 end
 JavaNode["setclass"] = function (self, className, d)
-  local descriptor = d or {}
-  descriptor["implements"] = descriptor["implements"] or {}
+  local descriptor = d or {["visibility"] = nil, ["static"] = nil, ["implements"] = nil, ["extends"] = nil}
   local firstLineBuf = {}
   if descriptor["visibility"] then
     if isVisibilitySpecInvalid(descriptor["visibility"]) then
@@ -234,11 +250,13 @@ JavaNode["setclass"] = function (self, className, d)
   end
   table["insert"](firstLineBuf,#(firstLineBuf) + 1,"{")
   local line = table["concat"](firstLineBuf," ")
-  self["node"]:insertleft(line)
-  self["node"]:insertright("}")
+  local n = self["node"]
+  n:insertleft(line)
+  n:insertright("}")
   self["class"] = descriptor
   self["className"] = className
   return self
 end
+local ja = JavaNode:new()
 return JavaNode
 

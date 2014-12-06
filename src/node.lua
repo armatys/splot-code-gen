@@ -41,35 +41,41 @@ Node["children"] = _children
 Node["root_children"] = _root_children
 Node["unique"] = _unique
 Node["new"] = function (self)
-  local s = setmetatable({},{["__index"] = self})
+  local t = {}
   local _left_contents = {}
   local _right_contents = {}
   local _children = {}
   local _root_children = {}
   local _unique = false
-  s["left_contents"] = _left_contents
-  s["right_contents"] = _right_contents
-  s["children"] = _children
-  s["root_children"] = _root_children
-  s["unique"] = _unique
+  t["left_contents"] = _left_contents
+  t["right_contents"] = _right_contents
+  t["children"] = _children
+  t["root_children"] = _root_children
+  t["unique"] = _unique
+  local s = setmetatable(t,{["__index"] = self})
   return s
 end
 Node["insertleft"] = function (self, code, pos)
-  pos = pos or #(self["left_contents"]) + 1
-  table["insert"](self["left_contents"],pos,code)
+  local p = pos or #(self["left_contents"]) + 1
+  local contents = self["left_contents"]
+  table["insert"](contents,p,code)
   return self
 end
 Node["insertright"] = function (self, code, pos)
-  pos = pos or #(self["right_contents"]) + 1
-  table["insert"](self["right_contents"],pos,code)
+  local p = pos or #(self["right_contents"]) + 1
+  local contents = self["right_contents"]
+  table["insert"](contents,p,code)
   return self
 end
 Node["child"] = function (self, node)
-  table["insert"](self["children"],#(self["children"]) + 1,node)
+  local t = self["children"]
+  table["insert"](t,#(t) + 1,node)
   return self
 end
-Node["rootchild"] = function (self, node)
-  table["insert"](self["root_children"],#(self["root_children"]) + 1,node)
+Node["rootchild"] = function (self, node, prepend)
+  local t = self["root_children"]
+  local pos = prepend and 1 or #(t) + 1
+  table["insert"](t,pos,node)
   return self
 end
 Node["tree"] = function (self, level)
@@ -86,17 +92,17 @@ Node["tree"] = function (self, level)
   iterateContents(self["right_contents"],level,code)
   return code
 end
-Node["joinleft"] = function (self, node)
-  local t = Node["tree"](node)
-  for _, v in ipairs(t) do
-    table["insert"](self["left_contents"],#(self["left_contents"]) + 1,v)
+Node["joinleft"] = function (self, tree)
+  for _, v in ipairs(tree) do
+    local t = self["left_contents"]
+    table["insert"](t,#(t) + 1,v)
   end
   return self
 end
-Node["joinright"] = function (self, node)
-  local t = Node["tree"](node)
-  for _, v in ipairs(t) do
-    table["insert"](self["right_contents"],#(self["right_contents"]) + 1,v)
+Node["joinright"] = function (self, tree)
+  for _, v in ipairs(tree) do
+    local t = self["right_contents"]
+    table["insert"](t,#(t) + 1,v)
   end
   return self
 end

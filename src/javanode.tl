@@ -4,14 +4,14 @@ local string = require 'string'
 
 local NullableFQN = 'javax.annotation.Nullable'
 
-local interface JavaClassDescriptor
+interface JavaClassDescriptor
   visibility: string?
   static: boolean?
   implements: {string}?
   extends: string?
 end
 
-local interface JavaFieldSpec
+interface JavaFieldSpec
   fieldName: string
   fieldType: string
   fieldInit: string?
@@ -24,19 +24,19 @@ local interface JavaFieldSpec
   setterVisibility: string?
 end
 
-local interface JavaMethodParam
+interface JavaMethodParam
   name: string
   paramType: string
   optional: boolean?
   defaultValue: string?
 end
 
-local interface JavaMethodReturn
+interface JavaMethodReturn
   returnType: string
   optional: boolean?
 end
 
-local interface JavaMethodSpec
+interface JavaMethodSpec
   methodName: string
   returnSpec: JavaMethodReturn
   params: {JavaMethodParam}?
@@ -45,7 +45,7 @@ local interface JavaMethodSpec
   code: string?
 end
 
-local interface JavaConstructorSpec
+interface JavaConstructorSpec
   params: {JavaMethodParam}?
   visibility: string?
   code: string?
@@ -66,6 +66,7 @@ interface JavaNode
   const generateMethodParams:({JavaMethodParam}?, {string}) => (Node)
   const import:(string) => (self)
   const method:(JavaMethodSpec) => (self)
+  const package:(string) => (self)
   const setclass:(string, JavaClassDescriptor?) => (self)
 end
 
@@ -140,24 +141,26 @@ JavaNode.methods = _methods
 JavaNode.node = _node
 
 const function JavaNode:new(): self
-  local c = setmetatable({}, { __index = self })
-
   local _class: JavaClassDescriptor? = nil
   local _className: string? = nil
   local _fields: {JavaFieldSpec} = {}
   local _methods: {JavaMethodSpec} = {}
   local _node: Node = Node:new()
 
-  c.class = _class
-  c.className = _className
-  c.fields = _fields
-  c.methods = _methods
-  c.node = _node
-  return c
+  local t = {}
+  t.class = _class
+  t.className = _className
+  t.fields = _fields
+  t.methods = _methods
+  t.node = _node
+
+  local s = setmetatable(t, {__index = self})
+  return s
 end
 
 const function JavaNode:child(node: Node): self
-  self.node:child(node)
+  local n: Node = self.node
+  n:child(node)
   return self
 end
 
@@ -165,12 +168,23 @@ const function JavaNode:code(): string
   return self.node:code()
 end
 
-const function JavaNode:import(fqn: string)
-  local line = string.format('import %s;', fqn)
+const function JavaNode:import(fqn: string): self
+  local selfNode: Node = self.node
+  local line: string = string.format('import %s;', fqn)
+  local node: Node = Node:new()
+  node:insertleft(line)
+  node.unique = true
+  selfNode:rootchild(node)
+  return self
+end
+
+const function JavaNode:package(fqn: string): self
+  local selfNode: Node = self.node
+  local line = string.format('package %s;', fqn)
   local node = Node:new()
   node:insertleft(line)
   node.unique = true
-  self.node:rootchild(node)
+  selfNode:rootchild(node, true)
   return self
 end
 
@@ -180,7 +194,7 @@ const function JavaNode:generateMethodParams(_params: {JavaMethodParam}?, buf: {
 
   for i, param in ipairs(params) do
     if param.optional then
-      JavaNode.import(self, NullableFQN) --self:import(NullableFQN)
+      self.import(self, NullableFQN)
       table.insert(buf, #buf + 1, '@Nullable')
     end
     table.insert(buf, #buf + 1, param.paramType)
@@ -197,7 +211,7 @@ const function JavaNode:generateMethodParams(_params: {JavaMethodParam}?, buf: {
       ifNode:insertright('}')
       ifNode:child(ifContentNode)
 
-      codeNode:joinleft(ifNode)
+      codeNode:joinleft(ifNode:tree())
     end
   end
   return codeNode
@@ -218,7 +232,7 @@ const function JavaNode:constructor(s: JavaConstructorSpec?): self
 
   table.insert(firstLineBuf, #firstLineBuf + 1, self.className)
   table.insert(firstLineBuf, #firstLineBuf + 1, '(')
-  local codeNode: Node = JavaNode.generateMethodParams(self, spec.params, firstLineBuf) --self:generateMethodParams(spec.params, firstLineBuf, codeNode)
+  local codeNode: Node = self:generateMethodParams(spec.params, firstLineBuf)
   table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
 
   local code: string? = spec.code
@@ -252,13 +266,13 @@ const function JavaNode:method(spec: JavaMethodSpec): self
   end
 
   if spec.returnSpec.optional then
-    JavaNode.import(self, NullableFQN) --self:import(NullableFQN)
+    self:import(NullableFQN)
     table.insert(firstLineBuf, #firstLineBuf + 1, '@Nullable')
   end
   table.insert(firstLineBuf, #firstLineBuf + 1, spec.returnSpec.returnType)
   table.insert(firstLineBuf, #firstLineBuf + 1, spec.methodName)
   table.insert(firstLineBuf, #firstLineBuf + 1, '(')
-  local codeNode: Node = JavaNode.generateMethodParams(self, spec.params, firstLineBuf) --self:generateMethodParams(spec.params, firstLineBuf)
+  local codeNode: Node = self:generateMethodParams(spec.params, firstLineBuf)
   table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
 
   local code: string? = spec.code
@@ -279,22 +293,24 @@ end
 const function JavaNode:field(fieldSpec: JavaFieldSpec): self
   self.node:child(generateField(fieldSpec))
   if fieldSpec.optional then
-    JavaNode.import(self, NullableFQN) --self:import(NullableFQN)
+    self:import(NullableFQN)
   end
 
   if fieldSpec.getter then
     local accessorName: string = javautils.makeAccessorName('get', fieldSpec.fieldName)
     local code = generateGetterCode(fieldSpec)
     if code then
+      local returnSpec: JavaMethodReturn = {returnType = fieldSpec.fieldType, optional = fieldSpec.optional}
+      local params: {JavaMethodParam}? = nil
       local spec: JavaMethodSpec = {
         methodName = accessorName,
-        returnSpec = {returnType = fieldSpec.fieldType, optional = fieldSpec.optional},
-        params = {},
+        returnSpec = returnSpec,
+        params = params,
         visibility = fieldSpec.getterVisibility,
         static = fieldSpec.static,
         code = code
       }
-      JavaNode.method(self, spec) --self:method(spec)
+      self:method(spec)
     end
   end
 
@@ -302,26 +318,33 @@ const function JavaNode:field(fieldSpec: JavaFieldSpec): self
     local accessorName = javautils.makeAccessorName('set', fieldSpec.fieldName)
     local code = generateSetterCode(fieldSpec)
     if code then
+      local returnSpec: JavaMethodReturn = {returnType = 'void', optional = false}
+      local params: {JavaMethodParam} = { {name = fieldSpec.fieldName, paramType = fieldSpec.fieldType, optional = fieldSpec.optional} }
       local spec: JavaMethodSpec = {
         methodName = accessorName,
-        returnSpec = {returnType = 'void', optional = false},
-        params = { {name = fieldSpec.fieldName, paramType = fieldSpec.fieldType, optional = fieldSpec.optional} },
+        returnSpec = returnSpec,
+        params = params,
         visibility = fieldSpec.setterVisibility,
         static = fieldSpec.static,
         code = code
       }
-      JavaNode.method(self, spec) --self:method(spec)
+      self:method(spec)
     end
   end
 
-  table.insert(self.fields, #self.fields + 1, fieldSpec)
+  local fields: {JavaFieldSpec} = self.fields
+  table.insert(fields, #fields + 1, fieldSpec)
 
   return self
 end
 
 const function JavaNode:setclass(className: string, d: JavaClassDescriptor?): self
-  local descriptor: JavaClassDescriptor = d or {}
-  descriptor.implements = descriptor.implements or {}
+  local descriptor: JavaClassDescriptor = d or {
+    visibility = nil,
+    static = nil,
+    implements = nil,
+    extends = nil
+  }
 
   local firstLineBuf: {string} = {}
   if descriptor.visibility then
@@ -353,12 +376,16 @@ const function JavaNode:setclass(className: string, d: JavaClassDescriptor?): se
   table.insert(firstLineBuf, #firstLineBuf + 1, '{')
 
   local line = table.concat(firstLineBuf, ' ')
-  self.node:insertleft(line)
-  self.node:insertright('}')
+  local n: Node = self.node
+  n:insertleft(line)
+  n:insertright('}')
 
   self.class = descriptor
   self.className = className
   return self
 end
+
+
+local ja: JavaNode = JavaNode:new()
 
 return JavaNode
