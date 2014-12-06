@@ -194,7 +194,7 @@ const function JavaNode:generateMethodParams(_params: {JavaMethodParam}?, buf: {
 
   for i, param in ipairs(params) do
     if param.optional then
-      self.import(self, NullableFQN)
+      self:import(NullableFQN)
       table.insert(buf, #buf + 1, '@Nullable')
     end
     table.insert(buf, #buf + 1, param.paramType)
