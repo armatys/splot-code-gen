@@ -3,11 +3,8 @@
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-SRC_DIR="${DIR}/src"
+DIST_DIR="${DIR}/dist"
 
-LUA_PATH="${SRC_DIR}/?.lua;;" tlc -o "${SRC_DIR}/node.lua" "${SRC_DIR}/node.tl"
-LUA_PATH="${SRC_DIR}/?.lua;;" tlc -o "${SRC_DIR}/javautils.lua" "${SRC_DIR}/javautils.tl"
-LUA_PATH="${SRC_DIR}/?.lua;;" tlc -o "${SRC_DIR}/javanode.lua" "${SRC_DIR}/javanode.tl"
-LUA_PATH="${SRC_DIR}/?.lua;;" tlc -o "${SRC_DIR}/java.lua" "${SRC_DIR}/java.tl"
+${DIR}/compile.sh
 
-busted --cwd="${DIR}/" --pattern="test_" "${SRC_DIR}"
+busted --cwd="${DIR}/" --pattern="test_" --lpath="${DIST_DIR}/?.lua;${DIST_DIR}/?/init.lua" "${DIST_DIR}"

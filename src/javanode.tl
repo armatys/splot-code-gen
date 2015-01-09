@@ -218,6 +218,7 @@ const function JavaNode:generateMethodParams(_params: {JavaMethodParam}?, buf: {
 end
 
 const function JavaNode:constructor(s: JavaConstructorSpec?): self
+  local cname: string = self.className or '?'
   local spec: JavaConstructorSpec = s or {params=nil, visibility=nil, code=nil}
   spec.params = spec.params or {}
 
@@ -225,14 +226,15 @@ const function JavaNode:constructor(s: JavaConstructorSpec?): self
 
   if spec.visibility then
     if isVisibilitySpecInvalid(spec.visibility) then
-      error(string.format('Constructor for class %s has invalid visibility: "%s"', tostring(self.className), tostring(spec.visibility)), 2)
+      error(string.format('Constructor for class %s has invalid visibility: "%s"', cname, tostring(spec.visibility)), 2)
     end
     table.insert(firstLineBuf, #firstLineBuf + 1, spec.visibility)
   end
 
-  table.insert(firstLineBuf, #firstLineBuf + 1, self.className)
+  table.insert(firstLineBuf, #firstLineBuf + 1, cname)
   table.insert(firstLineBuf, #firstLineBuf + 1, '(')
-  local codeNode: Node = self:generateMethodParams(spec.params, firstLineBuf)
+  local p = spec.params
+  local codeNode: Node = self:generateMethodParams(p, firstLineBuf)
   table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
 
   local code: string? = spec.code
@@ -384,8 +386,5 @@ const function JavaNode:setclass(className: string, d: JavaClassDescriptor?): se
   self.className = className
   return self
 end
-
-
-local ja: JavaNode = JavaNode:new()
 
 return JavaNode

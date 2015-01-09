@@ -110,10 +110,16 @@ local function runArguments(arguments: ProgramArgs)
   end
   local typecheckMessages: { {'tag': string, 'msg': string, 'l': number, 'c': number} } = tlchecker.typecheck(typecheckedAst, subject, STRICT)
   if #typecheckMessages > 0 then
+    local shouldFail = false
     for k, v in pairs(typecheckMessages) do
       writeError(string.format('ERR: %s: %s', k, dir(v)))
+      if v.tag ~= 'unused' then
+        shouldFail = true
+      end
     end
-    os.exit(1)
+    if shouldFail then
+      os.exit(1)
+    end
   end
 
   local moduleName: string = getModuleName(arguments.outFilePath) or ''
