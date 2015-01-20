@@ -5,6 +5,7 @@ local lpeg = require 'lpeg'
 local math = require 'math'
 local os = require 'os'
 local string = require 'string'
+local swift = require 'swift'
 local table = require 'table'
 local tlparser = require 'typedlua.tlparser'
 local tlchecker = require 'typedlua.tlchecker'
@@ -75,7 +76,7 @@ end
 
 local function getGenerator(outFilePath: string): ProgramGenerator?
   if outFilePath:match('.*%.swift$') then
-    return nil -- TODO
+    return swift
   elseif outFilePath:match('.*%.java$') then
     return java
   else
