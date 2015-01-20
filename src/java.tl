@@ -10,7 +10,7 @@ end
 
 local function processTTable(context: Context, ttable: {any: any}, topLevel: boolean?): JavaNode
   local javaNode: JavaNode = JavaNode:new()
-  javaNode:package('io.splot.L')
+  javaNode:package('splot.L')
   javaNode:import('io.splot.LuaTable')
   
   return javaNode

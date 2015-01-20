@@ -11,6 +11,7 @@ local tlparser = require 'typedlua.tlparser'
 local tlchecker = require 'typedlua.tlchecker'
 
 local STRICT = false
+local INTEGER = true
 
 local interface ProgramGenerator
   name: string
@@ -109,7 +110,7 @@ local function runArguments(arguments: ProgramArgs)
     writeError(err or 'Error getting plain AST (typechecked)')
     os.exit(1)
   end
-  local typecheckMessages: { {'tag': string, 'msg': string, 'l': number, 'c': number} } = tlchecker.typecheck(typecheckedAst, subject, STRICT)
+  local typecheckMessages: { {'tag': string, 'msg': string, 'l': number, 'c': number} } = tlchecker.typecheck(typecheckedAst, subject, arguments.inFilePath, STRICT, INTEGER)
   if #typecheckMessages > 0 then
     local shouldFail = false
     for k, v in pairs(typecheckMessages) do
