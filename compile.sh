@@ -17,6 +17,7 @@ LUA_PATH="${TLC_MODULES}${SRC_DIR}/?.lua;;" ${TLC} -o "${DIST_DIR}/javanode.lua"
 LUA_PATH="${TLC_MODULES}${SRC_DIR}/?.lua;;" ${TLC} -o "${DIST_DIR}/java.lua" "${SRC_DIR}/java.tl"
 LUA_PATH="${TLC_MODULES}${SRC_DIR}/?.lua;;" ${TLC} -o "${DIST_DIR}/swiftnode.lua" "${SRC_DIR}/swiftnode.tl"
 LUA_PATH="${TLC_MODULES}${SRC_DIR}/?.lua;;" ${TLC} -o "${DIST_DIR}/swift.lua" "${SRC_DIR}/swift.tl"
+LUA_PATH="${TLC_MODULES}${SRC_DIR}/?.lua;;" ${TLC} -o "${DIST_DIR}/cli.lua" "${SRC_DIR}/cli.tl"
 LUA_PATH="${TLC_MODULES}${SRC_DIR}/?.lua;;" ${TLC} -o "${DIST_DIR}/main.lua" "${SRC_DIR}/main.tl"
 
 cp "${SRC_DIR}"/*.lua "${DIST_DIR}/"
