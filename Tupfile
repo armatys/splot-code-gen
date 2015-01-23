@@ -1,0 +1,4 @@
+.gitignore
+
+: foreach src/*.tl |> LUA_PATH="src/?.lua;src/?/init.lua;;" tlc -o %o %f |> dist/%B.lua
+: foreach src/*.lua |> cp %f %o |> dist/%B.lua
