@@ -19,7 +19,7 @@ interface Node
   const code:() => (string)
 end
 
-local function iterateChildren(children: {Node}, level: number, code: {string})
+local function iterateChildren(children: {Node}, level: integer, code: {string})
   local lines: {string: boolean} = {}
   for _, childnode in ipairs(children) do
     local codelines = childnode:tree(level)
@@ -38,7 +38,7 @@ local function iterateChildren(children: {Node}, level: number, code: {string})
   end
 end
 
-local function iterateContents(contents: {string}, level: number, code: {string})
+local function iterateContents(contents: {string}, level: integer, code: {string})
   local whitespace: string = string.rep('  ', level, nil)
   for _, v in ipairs(contents) do
     for line in string.gmatch(v, '[^\n]+') do
@@ -107,7 +107,7 @@ local t: {Node} = self.root_children
   return self
 end
 
-const function Node:tree(level: number?): {string}
+const function Node:tree(level: integer?): {string}
   level = level or 0
   local code: {string} = {}
 

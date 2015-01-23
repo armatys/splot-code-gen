@@ -1,4 +1,5 @@
 local JavaNode = require 'javanode'
+local serpent = require 'serpent'
 local table = require 'table'
 
 local interface Context
@@ -36,6 +37,8 @@ local function process(luaModuleName: string, javaModuleName: string, plainAst: 
   if not i then
     error(retNode, 2)
   end
+
+  -- print(serpent.block(typecheckedAst))
 
   local rootNode: JavaNode = processTTable(ctx, retNode, true)
   local code: string = rootNode:code()
