@@ -376,4 +376,55 @@ public class Test {
   }
 }]], code)
   end)
+
+  it('should create a public class with a public method', function()
+    local code = JavaNode:new()
+      :setclass('Test', {visibility = 'public'})
+      :method({methodName='foo', returnSpec={returnType='void'}, visibility='public', code='System.out.println("Hello foo");'})
+      :code()
+    assert.is.equals([[
+public class Test {
+  public void foo ( ) {
+    System.out.println("Hello foo");
+  }
+}]], code)
+  end)
+
+  it('should create a public class with a public method that throws an Exception', function()
+    local code = JavaNode:new()
+      :setclass('Test', {visibility = 'public'})
+      :method({
+        methodName='foo',
+        returnSpec={returnType='void'},
+        visibility='public',
+        code='System.out.println("Hello foo");',
+        throws={'Exception'}
+      })
+      :code()
+    assert.is.equals([[
+public class Test {
+  public void foo ( ) throws Exception {
+    System.out.println("Hello foo");
+  }
+}]], code)
+  end)
+
+  it('should create a public class with a public method that throws two exceptions', function()
+    local code = JavaNode:new()
+      :setclass('Test', {visibility = 'public'})
+      :method({
+        methodName='foo',
+        returnSpec={returnType='void'},
+        visibility='public',
+        code='System.out.println("Hello foo");',
+        throws={'NumberFormatException', 'IndexOutOfBoundsException'}
+      })
+      :code()
+    assert.is.equals([[
+public class Test {
+  public void foo ( ) throws NumberFormatException, IndexOutOfBoundsException {
+    System.out.println("Hello foo");
+  }
+}]], code)
+  end)
 end)

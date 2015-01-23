@@ -42,6 +42,7 @@ interface JavaMethodSpec
   params: {JavaMethodParam}?
   visibility: string?
   static: boolean?
+  throws: {string}?
   code: string?
 end
 
@@ -275,7 +276,15 @@ const function JavaNode:method(spec: JavaMethodSpec): self
   table.insert(firstLineBuf, #firstLineBuf + 1, spec.methodName)
   table.insert(firstLineBuf, #firstLineBuf + 1, '(')
   local codeNode: Node = self:generateMethodParams(spec.params, firstLineBuf)
-  table.insert(firstLineBuf, #firstLineBuf + 1, ') {')
+  table.insert(firstLineBuf, #firstLineBuf + 1, ')')
+
+  if spec.throws then
+    local s = table.concat(spec.throws, ', ')
+    table.insert(firstLineBuf, #firstLineBuf + 1, 'throws')
+    table.insert(firstLineBuf, #firstLineBuf + 1, s)
+  end
+
+  table.insert(firstLineBuf, #firstLineBuf + 1, '{')
 
   local code: string? = spec.code
   if type(code) == 'string' then
