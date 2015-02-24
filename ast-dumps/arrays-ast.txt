@@ -1,0 +1,1721 @@
+0x7fd5d58beec0{
+  0x7fd5d58e3e40{
+    0x7fd5d58e7780{
+      0x7fd5d58e6bd0{
+        "_M",
+        type = 0x7fd5d5f1d900{
+          0x7fd5d5f1ec40{
+            0x7fd5d5f1e560{
+              "a1",
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1e920{
+              0x7fd5d5f1e660{
+                0x7fd5d5f1dae0{
+                  1,
+                  tag = "TLiteral"
+                },
+                0x7fd5d5f1db60{
+                  "integer",
+                  tag = "TBase"
+                },
+                tag = "TField"
+              },
+              0x7fd5d5f1e6a0{
+                0x7fd5d5f1dd20{
+                  2,
+                  tag = "TLiteral"
+                },
+                0x7fd5d5f1dda0{
+                  "integer",
+                  tag = "TBase"
+                },
+                tag = "TField"
+              },
+              0x7fd5d5f1e760{
+                0x7fd5d5f1df60{
+                  3,
+                  tag = "TLiteral"
+                },
+                0x7fd5d5f1dfe0{
+                  "integer",
+                  tag = "TBase"
+                },
+                tag = "TField"
+              },
+              0x7fd5d5f1e860{
+                0x7fd5d5f1e1e0{
+                  4,
+                  tag = "TLiteral"
+                },
+                0x7fd5d5f1e260{
+                  "integer",
+                  tag = "TBase"
+                },
+                tag = "TField"
+              },
+              unique = true,
+              tag = "TTable"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f21510{
+            0x7fd5d5f20750{
+              "a2",
+              tag = "TLiteral"
+            },
+            0x7fd5d5f20bb0{
+              0x7fd5d5f20af0{
+                0x7fd5d58c69c0{
+                  "number",
+                  tag = "TBase"
+                },
+                0x7fd5d5f26cb0{
+                  0x7fd5d58e3060{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d58aa290{
+                    tag = "TNil"
+                  },
+                  tag = "TUnion"
+                },
+                const = false,
+                tag = "TField"
+              },
+              tag = "TTable"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f23c90{
+            0x7fd5d5f22710{
+              "a3",
+              tag = "TLiteral"
+            },
+            0x7fd5d5f22ce0{
+              0x7fd5d5f22a60{
+                0x7fd5d5f22050{
+                  1,
+                  tag = "TLiteral"
+                },
+                0x7fd5d5f220d0{
+                  "string",
+                  tag = "TBase"
+                },
+                tag = "TField"
+              },
+              0x7fd5d5f22b20{
+                0x7fd5d5f22290{
+                  2,
+                  tag = "TLiteral"
+                },
+                0x7fd5d5f22310{
+                  "string",
+                  tag = "TBase"
+                },
+                tag = "TField"
+              },
+              0x7fd5d5f22be0{
+                0x7fd5d5f224d0{
+                  3,
+                  tag = "TLiteral"
+                },
+                0x7fd5d5f22550{
+                  "string",
+                  tag = "TBase"
+                },
+                tag = "TField"
+              },
+              unique = true,
+              tag = "TTable"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f26ff0{
+            0x7fd5d5f254e0{
+              "a4",
+              tag = "TLiteral"
+            },
+            0x7fd5d5f25a60{
+              0x7fd5d5f259a0{
+                0x7fd5d58c3480{
+                  "number",
+                  tag = "TBase"
+                },
+                0x7fd5d5f27230{
+                  0x7fd5d58ca240{
+                    "string",
+                    tag = "TBase"
+                  },
+                  0x7fd5d58aa290{
+                    tag = "TNil"
+                  },
+                  tag = "TUnion"
+                },
+                const = false,
+                tag = "TField"
+              },
+              tag = "TTable"
+            },
+            tag = "TField"
+          },
+          open = true,
+          tag = "TTable"
+        },
+        pos = 7,
+        tag = "Id"
+      },
+      pos = 7,
+      tag = "NameList"
+    },
+    0x7fd5d58e41c0{
+      0x7fd5d58e7810{
+        type = 0x7fd5d5f1d7f0{
+          unique = true,
+          tag = "TTable"
+        },
+        pos = 12,
+        tag = "Table"
+      },
+      pos = 12,
+      tag = "ExpList"
+    },
+    pos = 7,
+    tag = "Local"
+  },
+  0x7fd5d58d7ff0{
+    0x7fd5d5812290{
+      0x7fd5d58ed9f0{
+        0x7fd5d58e06d0{
+          "_M",
+          type = 0x7fd5d5f1d900{
+            0x7fd5d5f1ec40{
+              0x7fd5d5f1e560{
+                "a1",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f1e920{
+                0x7fd5d5f1e660{
+                  0x7fd5d5f1dae0{
+                    1,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1db60{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e6a0{
+                  0x7fd5d5f1dd20{
+                    2,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1dda0{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e760{
+                  0x7fd5d5f1df60{
+                    3,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1dfe0{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e860{
+                  0x7fd5d5f1e1e0{
+                    4,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1e260{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                unique = true,
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f21510{
+              0x7fd5d5f20750{
+                "a2",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f20bb0{
+                0x7fd5d5f20af0{
+                  0x7fd5d58c69c0{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d5f26cb0{
+                    0x7fd5d58e3060{
+                      "number",
+                      tag = "TBase"
+                    },
+                    0x7fd5d58aa290{
+                      tag = "TNil"
+                    },
+                    tag = "TUnion"
+                  },
+                  const = false,
+                  tag = "TField"
+                },
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f23c90{
+              0x7fd5d5f22710{
+                "a3",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f22ce0{
+                0x7fd5d5f22a60{
+                  0x7fd5d5f22050{
+                    1,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f220d0{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f22b20{
+                  0x7fd5d5f22290{
+                    2,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f22310{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f22be0{
+                  0x7fd5d5f224d0{
+                    3,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f22550{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                unique = true,
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f26ff0{
+              0x7fd5d5f254e0{
+                "a4",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f25a60{
+                0x7fd5d5f259a0{
+                  0x7fd5d58c3480{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d5f27230{
+                    0x7fd5d58ca240{
+                      "string",
+                      tag = "TBase"
+                    },
+                    0x7fd5d58aa290{
+                      tag = "TNil"
+                    },
+                    tag = "TUnion"
+                  },
+                  const = false,
+                  tag = "TField"
+                },
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            open = true,
+            tag = "TTable"
+          },
+          pos = 16,
+          tag = "Id"
+        },
+        0x7fd5d584d4e0{
+          "a1",
+          type = 0x7fd5d5f1e560{
+            "a1",
+            tag = "TLiteral"
+          },
+          pos = 19,
+          tag = "String"
+        },
+        type = 0x7fd5d5f1e920{
+          0x7fd5d5f1e660{
+            0x7fd5d5f1dae0{
+              1,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1db60{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1e6a0{
+            0x7fd5d5f1dd20{
+              2,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1dda0{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1e760{
+            0x7fd5d5f1df60{
+              3,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1dfe0{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1e860{
+            0x7fd5d5f1e1e0{
+              4,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1e260{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          unique = true,
+          tag = "TTable"
+        },
+        pos = 16,
+        tag = "Index"
+      },
+      pos = 16,
+      tag = "Varlist"
+    },
+    0x7fd5d58b8160{
+      0x7fd5d58b80d0{
+        0x7fd5d58eda80{
+          1,
+          type = 0x7fd5d5f08320{
+            1,
+            tag = "TLiteral"
+          },
+          pos = 25,
+          tag = "Number"
+        },
+        0x7fd5d58de440{
+          2,
+          type = 0x7fd5d5f1dca0{
+            2,
+            tag = "TLiteral"
+          },
+          pos = 28,
+          tag = "Number"
+        },
+        0x7fd5d58db970{
+          3,
+          type = 0x7fd5d5f1dee0{
+            3,
+            tag = "TLiteral"
+          },
+          pos = 31,
+          tag = "Number"
+        },
+        0x7fd5d58dba00{
+          4,
+          type = 0x7fd5d5f1e160{
+            4,
+            tag = "TLiteral"
+          },
+          pos = 34,
+          tag = "Number"
+        },
+        type = 0x7fd5d5f1e3a0{
+          0x7fd5d5f1dbe0{
+            0x7fd5d5f1dae0{
+              1,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1db60{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1de20{
+            0x7fd5d5f1dd20{
+              2,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1dda0{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1e060{
+            0x7fd5d5f1df60{
+              3,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1dfe0{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1e2e0{
+            0x7fd5d5f1e1e0{
+              4,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1e260{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          unique = true,
+          tag = "TTable"
+        },
+        pos = 24,
+        tag = "Table"
+      },
+      pos = 24,
+      tag = "ExpList"
+    },
+    pos = 16,
+    tag = "Set"
+  },
+  0x7fd5d58ca120{
+    0x7fd5d58c84c0{
+      0x7fd5d58c8430{
+        "_a2",
+        0x7fd5d58c7710{
+          0x7fd5d58c6d90{
+            0x7fd5d58c69c0{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5f219b0{
+              0x7fd5d58e3060{
+                "number",
+                tag = "TBase"
+              },
+              0x7fd5d58aa290{
+                tag = "TNil"
+              },
+              tag = "TUnion"
+            },
+            const = false,
+            tag = "TField"
+          },
+          tag = "TTable"
+        },
+        type = 0x7fd5d58c7710{
+          0x7fd5d58c6d90{
+            0x7fd5d58c69c0{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5f219b0{
+              0x7fd5d58e3060{
+                "number",
+                tag = "TBase"
+              },
+              0x7fd5d58aa290{
+                tag = "TNil"
+              },
+              tag = "TUnion"
+            },
+            const = false,
+            tag = "TField"
+          },
+          tag = "TTable"
+        },
+        pos = 44,
+        tag = "Id"
+      },
+      pos = 44,
+      tag = "NameList"
+    },
+    0x7fd5d58c98b0{
+      0x7fd5d58c9730{
+        0x7fd5d58c8b10{
+          1,
+          type = 0x7fd5d5f1f660{
+            1,
+            tag = "TLiteral"
+          },
+          pos = 61,
+          tag = "Number"
+        },
+        0x7fd5d58c89e0{
+          2,
+          type = 0x7fd5d5f1f8a0{
+            2,
+            tag = "TLiteral"
+          },
+          pos = 64,
+          tag = "Number"
+        },
+        0x7fd5d58c8ea0{
+          3,
+          type = 0x7fd5d5f1fae0{
+            3,
+            tag = "TLiteral"
+          },
+          pos = 67,
+          tag = "Number"
+        },
+        0x7fd5d58c96a0{
+          4,
+          type = 0x7fd5d5f1fd60{
+            4,
+            tag = "TLiteral"
+          },
+          pos = 70,
+          tag = "Number"
+        },
+        type = 0x7fd5d5f1ffa0{
+          0x7fd5d5f1f7e0{
+            0x7fd5d5f1f6e0{
+              1,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1f760{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1fa20{
+            0x7fd5d5f1f920{
+              2,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1f9a0{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1fc60{
+            0x7fd5d5f1fb60{
+              3,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1fbe0{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f1fee0{
+            0x7fd5d5f1fde0{
+              4,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f1fe60{
+              "integer",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          unique = true,
+          tag = "TTable"
+        },
+        pos = 60,
+        tag = "Table"
+      },
+      pos = 60,
+      tag = "ExpList"
+    },
+    pos = 44,
+    tag = "Local"
+  },
+  0x7fd5d58e8f20{
+    0x7fd5d58e89b0{
+      0x7fd5d58e8710{
+        0x7fd5d5876ed0{
+          "_M",
+          type = 0x7fd5d5f1d900{
+            0x7fd5d5f1ec40{
+              0x7fd5d5f1e560{
+                "a1",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f1e920{
+                0x7fd5d5f1e660{
+                  0x7fd5d5f1dae0{
+                    1,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1db60{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e6a0{
+                  0x7fd5d5f1dd20{
+                    2,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1dda0{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e760{
+                  0x7fd5d5f1df60{
+                    3,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1dfe0{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e860{
+                  0x7fd5d5f1e1e0{
+                    4,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1e260{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                unique = true,
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f21510{
+              0x7fd5d5f20750{
+                "a2",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f20bb0{
+                0x7fd5d5f20af0{
+                  0x7fd5d58c69c0{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d5f26cb0{
+                    0x7fd5d58e3060{
+                      "number",
+                      tag = "TBase"
+                    },
+                    0x7fd5d58aa290{
+                      tag = "TNil"
+                    },
+                    tag = "TUnion"
+                  },
+                  const = false,
+                  tag = "TField"
+                },
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f23c90{
+              0x7fd5d5f22710{
+                "a3",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f22ce0{
+                0x7fd5d5f22a60{
+                  0x7fd5d5f22050{
+                    1,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f220d0{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f22b20{
+                  0x7fd5d5f22290{
+                    2,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f22310{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f22be0{
+                  0x7fd5d5f224d0{
+                    3,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f22550{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                unique = true,
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f26ff0{
+              0x7fd5d5f254e0{
+                "a4",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f25a60{
+                0x7fd5d5f259a0{
+                  0x7fd5d58c3480{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d5f27230{
+                    0x7fd5d58ca240{
+                      "string",
+                      tag = "TBase"
+                    },
+                    0x7fd5d58aa290{
+                      tag = "TNil"
+                    },
+                    tag = "TUnion"
+                  },
+                  const = false,
+                  tag = "TField"
+                },
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            open = true,
+            tag = "TTable"
+          },
+          pos = 73,
+          tag = "Id"
+        },
+        0x7fd5d5877090{
+          "a2",
+          type = 0x7fd5d5f20750{
+            "a2",
+            tag = "TLiteral"
+          },
+          pos = 76,
+          tag = "String"
+        },
+        type = 0x7fd5d5f20bb0{
+          0x7fd5d5f20af0{
+            0x7fd5d58c69c0{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5f26cb0{
+              0x7fd5d58e3060{
+                "number",
+                tag = "TBase"
+              },
+              0x7fd5d58aa290{
+                tag = "TNil"
+              },
+              tag = "TUnion"
+            },
+            const = false,
+            tag = "TField"
+          },
+          tag = "TTable"
+        },
+        pos = 73,
+        tag = "Index"
+      },
+      pos = 73,
+      tag = "Varlist"
+    },
+    0x7fd5d58e8920{
+      0x7fd5d58e8890{
+        "_a2",
+        type = 0x7fd5d58c7710{
+          0x7fd5d58c6d90{
+            0x7fd5d58c69c0{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5f219b0{
+              0x7fd5d58e3060{
+                "number",
+                tag = "TBase"
+              },
+              0x7fd5d58aa290{
+                tag = "TNil"
+              },
+              tag = "TUnion"
+            },
+            const = false,
+            tag = "TField"
+          },
+          tag = "TTable"
+        },
+        pos = 81,
+        tag = "Id"
+      },
+      pos = 81,
+      tag = "ExpList"
+    },
+    pos = 73,
+    tag = "Set"
+  },
+  0x7fd5d58ec5b0{
+    0x7fd5d58eb9f0{
+      0x7fd5d58eac20{
+        0x7fd5d58ea940{
+          "_M",
+          type = 0x7fd5d5f1d900{
+            0x7fd5d5f1ec40{
+              0x7fd5d5f1e560{
+                "a1",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f1e920{
+                0x7fd5d5f1e660{
+                  0x7fd5d5f1dae0{
+                    1,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1db60{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e6a0{
+                  0x7fd5d5f1dd20{
+                    2,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1dda0{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e760{
+                  0x7fd5d5f1df60{
+                    3,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1dfe0{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e860{
+                  0x7fd5d5f1e1e0{
+                    4,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1e260{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                unique = true,
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f21510{
+              0x7fd5d5f20750{
+                "a2",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f20bb0{
+                0x7fd5d5f20af0{
+                  0x7fd5d58c69c0{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d5f26cb0{
+                    0x7fd5d58e3060{
+                      "number",
+                      tag = "TBase"
+                    },
+                    0x7fd5d58aa290{
+                      tag = "TNil"
+                    },
+                    tag = "TUnion"
+                  },
+                  const = false,
+                  tag = "TField"
+                },
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f23c90{
+              0x7fd5d5f22710{
+                "a3",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f22ce0{
+                0x7fd5d5f22a60{
+                  0x7fd5d5f22050{
+                    1,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f220d0{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f22b20{
+                  0x7fd5d5f22290{
+                    2,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f22310{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f22be0{
+                  0x7fd5d5f224d0{
+                    3,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f22550{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                unique = true,
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f26ff0{
+              0x7fd5d5f254e0{
+                "a4",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f25a60{
+                0x7fd5d5f259a0{
+                  0x7fd5d58c3480{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d5f27230{
+                    0x7fd5d58ca240{
+                      "string",
+                      tag = "TBase"
+                    },
+                    0x7fd5d58aa290{
+                      tag = "TNil"
+                    },
+                    tag = "TUnion"
+                  },
+                  const = false,
+                  tag = "TField"
+                },
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            open = true,
+            tag = "TTable"
+          },
+          pos = 86,
+          tag = "Id"
+        },
+        0x7fd5d58eab00{
+          "a3",
+          type = 0x7fd5d5f22710{
+            "a3",
+            tag = "TLiteral"
+          },
+          pos = 89,
+          tag = "String"
+        },
+        type = 0x7fd5d5f22ce0{
+          0x7fd5d5f22a60{
+            0x7fd5d5f22050{
+              1,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f220d0{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f22b20{
+            0x7fd5d5f22290{
+              2,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f22310{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f22be0{
+            0x7fd5d5f224d0{
+              3,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f22550{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          unique = true,
+          tag = "TTable"
+        },
+        pos = 86,
+        tag = "Index"
+      },
+      pos = 86,
+      tag = "Varlist"
+    },
+    0x7fd5d58eb5a0{
+      0x7fd5d58eb420{
+        0x7fd5d58eacb0{
+          "a",
+          type = 0x7fd5d5f21fd0{
+            "a",
+            tag = "TLiteral"
+          },
+          pos = 95,
+          tag = "String"
+        },
+        0x7fd5d58ead40{
+          "b",
+          type = 0x7fd5d5f22210{
+            "b",
+            tag = "TLiteral"
+          },
+          pos = 100,
+          tag = "String"
+        },
+        0x7fd5d58eb190{
+          "c",
+          type = 0x7fd5d5f22450{
+            "c",
+            tag = "TLiteral"
+          },
+          pos = 105,
+          tag = "String"
+        },
+        type = 0x7fd5d5f226d0{
+          0x7fd5d5f22150{
+            0x7fd5d5f22050{
+              1,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f220d0{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f22390{
+            0x7fd5d5f22290{
+              2,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f22310{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f225d0{
+            0x7fd5d5f224d0{
+              3,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f22550{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          unique = true,
+          tag = "TTable"
+        },
+        pos = 94,
+        tag = "Table"
+      },
+      pos = 94,
+      tag = "ExpList"
+    },
+    pos = 86,
+    tag = "Set"
+  },
+  0x7fd5d58be930{
+    0x7fd5d58c45a0{
+      0x7fd5d58c4880{
+        "_a4",
+        0x7fd5d58c4390{
+          0x7fd5d58c3d80{
+            0x7fd5d58c3480{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5f27490{
+              0x7fd5d58ca240{
+                "string",
+                tag = "TBase"
+              },
+              0x7fd5d58aa290{
+                tag = "TNil"
+              },
+              tag = "TUnion"
+            },
+            const = false,
+            tag = "TField"
+          },
+          tag = "TTable"
+        },
+        type = 0x7fd5d58c4390{
+          0x7fd5d58c3d80{
+            0x7fd5d58c3480{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5f27490{
+              0x7fd5d58ca240{
+                "string",
+                tag = "TBase"
+              },
+              0x7fd5d58aa290{
+                tag = "TNil"
+              },
+              tag = "TUnion"
+            },
+            const = false,
+            tag = "TField"
+          },
+          tag = "TTable"
+        },
+        pos = 117,
+        tag = "Id"
+      },
+      pos = 117,
+      tag = "NameList"
+    },
+    0x7fd5d58be110{
+      0x7fd5d58be080{
+        0x7fd5d58c4710{
+          "a",
+          type = 0x7fd5d5f246f0{
+            "a",
+            tag = "TLiteral"
+          },
+          pos = 134,
+          tag = "String"
+        },
+        0x7fd5d58c4e20{
+          "b",
+          type = 0x7fd5d5f24930{
+            "b",
+            tag = "TLiteral"
+          },
+          pos = 139,
+          tag = "String"
+        },
+        0x7fd5d58c8770{
+          "c",
+          type = 0x7fd5d5f24b70{
+            "c",
+            tag = "TLiteral"
+          },
+          pos = 144,
+          tag = "String"
+        },
+        type = 0x7fd5d5f24df0{
+          0x7fd5d5f24870{
+            0x7fd5d5f24770{
+              1,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f247f0{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f24ab0{
+            0x7fd5d5f249b0{
+              2,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f24a30{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          0x7fd5d5f24cf0{
+            0x7fd5d5f24bf0{
+              3,
+              tag = "TLiteral"
+            },
+            0x7fd5d5f24c70{
+              "string",
+              tag = "TBase"
+            },
+            tag = "TField"
+          },
+          unique = true,
+          tag = "TTable"
+        },
+        pos = 133,
+        tag = "Table"
+      },
+      pos = 133,
+      tag = "ExpList"
+    },
+    pos = 117,
+    tag = "Local"
+  },
+  0x7fd5d58e6590{
+    0x7fd5d5827a50{
+      0x7fd5d58068e0{
+        0x7fd5d5807fd0{
+          "_M",
+          type = 0x7fd5d5f1d900{
+            0x7fd5d5f1ec40{
+              0x7fd5d5f1e560{
+                "a1",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f1e920{
+                0x7fd5d5f1e660{
+                  0x7fd5d5f1dae0{
+                    1,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1db60{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e6a0{
+                  0x7fd5d5f1dd20{
+                    2,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1dda0{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e760{
+                  0x7fd5d5f1df60{
+                    3,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1dfe0{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f1e860{
+                  0x7fd5d5f1e1e0{
+                    4,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f1e260{
+                    "integer",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                unique = true,
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f21510{
+              0x7fd5d5f20750{
+                "a2",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f20bb0{
+                0x7fd5d5f20af0{
+                  0x7fd5d58c69c0{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d5f26cb0{
+                    0x7fd5d58e3060{
+                      "number",
+                      tag = "TBase"
+                    },
+                    0x7fd5d58aa290{
+                      tag = "TNil"
+                    },
+                    tag = "TUnion"
+                  },
+                  const = false,
+                  tag = "TField"
+                },
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f23c90{
+              0x7fd5d5f22710{
+                "a3",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f22ce0{
+                0x7fd5d5f22a60{
+                  0x7fd5d5f22050{
+                    1,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f220d0{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f22b20{
+                  0x7fd5d5f22290{
+                    2,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f22310{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                0x7fd5d5f22be0{
+                  0x7fd5d5f224d0{
+                    3,
+                    tag = "TLiteral"
+                  },
+                  0x7fd5d5f22550{
+                    "string",
+                    tag = "TBase"
+                  },
+                  tag = "TField"
+                },
+                unique = true,
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f26ff0{
+              0x7fd5d5f254e0{
+                "a4",
+                tag = "TLiteral"
+              },
+              0x7fd5d5f25a60{
+                0x7fd5d5f259a0{
+                  0x7fd5d58c3480{
+                    "number",
+                    tag = "TBase"
+                  },
+                  0x7fd5d5f27230{
+                    0x7fd5d58ca240{
+                      "string",
+                      tag = "TBase"
+                    },
+                    0x7fd5d58aa290{
+                      tag = "TNil"
+                    },
+                    tag = "TUnion"
+                  },
+                  const = false,
+                  tag = "TField"
+                },
+                tag = "TTable"
+              },
+              tag = "TField"
+            },
+            open = true,
+            tag = "TTable"
+          },
+          pos = 149,
+          tag = "Id"
+        },
+        0x7fd5d5807a10{
+          "a4",
+          type = 0x7fd5d5f254e0{
+            "a4",
+            tag = "TLiteral"
+          },
+          pos = 152,
+          tag = "String"
+        },
+        type = 0x7fd5d5f25a60{
+          0x7fd5d5f259a0{
+            0x7fd5d58c3480{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5f27230{
+              0x7fd5d58ca240{
+                "string",
+                tag = "TBase"
+              },
+              0x7fd5d58aa290{
+                tag = "TNil"
+              },
+              tag = "TUnion"
+            },
+            const = false,
+            tag = "TField"
+          },
+          tag = "TTable"
+        },
+        pos = 149,
+        tag = "Index"
+      },
+      pos = 149,
+      tag = "Varlist"
+    },
+    0x7fd5d5825fd0{
+      0x7fd5d5809150{
+        "_a4",
+        type = 0x7fd5d58c4390{
+          0x7fd5d58c3d80{
+            0x7fd5d58c3480{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5f27490{
+              0x7fd5d58ca240{
+                "string",
+                tag = "TBase"
+              },
+              0x7fd5d58aa290{
+                tag = "TNil"
+              },
+              tag = "TUnion"
+            },
+            const = false,
+            tag = "TField"
+          },
+          tag = "TTable"
+        },
+        pos = 157,
+        tag = "Id"
+      },
+      pos = 157,
+      tag = "ExpList"
+    },
+    pos = 149,
+    tag = "Set"
+  },
+  0x7fd5d58bf2a0{
+    0x7fd5d58bebd0{
+      "_M",
+      type = 0x7fd5d5f1d900{
+        0x7fd5d5f1ec40{
+          0x7fd5d5f1e560{
+            "a1",
+            tag = "TLiteral"
+          },
+          0x7fd5d5f1e920{
+            0x7fd5d5f1e660{
+              0x7fd5d5f1dae0{
+                1,
+                tag = "TLiteral"
+              },
+              0x7fd5d5f1db60{
+                "integer",
+                tag = "TBase"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f1e6a0{
+              0x7fd5d5f1dd20{
+                2,
+                tag = "TLiteral"
+              },
+              0x7fd5d5f1dda0{
+                "integer",
+                tag = "TBase"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f1e760{
+              0x7fd5d5f1df60{
+                3,
+                tag = "TLiteral"
+              },
+              0x7fd5d5f1dfe0{
+                "integer",
+                tag = "TBase"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f1e860{
+              0x7fd5d5f1e1e0{
+                4,
+                tag = "TLiteral"
+              },
+              0x7fd5d5f1e260{
+                "integer",
+                tag = "TBase"
+              },
+              tag = "TField"
+            },
+            unique = true,
+            tag = "TTable"
+          },
+          tag = "TField"
+        },
+        0x7fd5d5f21510{
+          0x7fd5d5f20750{
+            "a2",
+            tag = "TLiteral"
+          },
+          0x7fd5d5f20bb0{
+            0x7fd5d5f20af0{
+              0x7fd5d58c69c0{
+                "number",
+                tag = "TBase"
+              },
+              0x7fd5d5f26cb0{
+                0x7fd5d58e3060{
+                  "number",
+                  tag = "TBase"
+                },
+                0x7fd5d58aa290{
+                  tag = "TNil"
+                },
+                tag = "TUnion"
+              },
+              const = false,
+              tag = "TField"
+            },
+            tag = "TTable"
+          },
+          tag = "TField"
+        },
+        0x7fd5d5f23c90{
+          0x7fd5d5f22710{
+            "a3",
+            tag = "TLiteral"
+          },
+          0x7fd5d5f22ce0{
+            0x7fd5d5f22a60{
+              0x7fd5d5f22050{
+                1,
+                tag = "TLiteral"
+              },
+              0x7fd5d5f220d0{
+                "string",
+                tag = "TBase"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f22b20{
+              0x7fd5d5f22290{
+                2,
+                tag = "TLiteral"
+              },
+              0x7fd5d5f22310{
+                "string",
+                tag = "TBase"
+              },
+              tag = "TField"
+            },
+            0x7fd5d5f22be0{
+              0x7fd5d5f224d0{
+                3,
+                tag = "TLiteral"
+              },
+              0x7fd5d5f22550{
+                "string",
+                tag = "TBase"
+              },
+              tag = "TField"
+            },
+            unique = true,
+            tag = "TTable"
+          },
+          tag = "TField"
+        },
+        0x7fd5d5f26ff0{
+          0x7fd5d5f254e0{
+            "a4",
+            tag = "TLiteral"
+          },
+          0x7fd5d5f25a60{
+            0x7fd5d5f259a0{
+              0x7fd5d58c3480{
+                "number",
+                tag = "TBase"
+              },
+              0x7fd5d5f27230{
+                0x7fd5d58ca240{
+                  "string",
+                  tag = "TBase"
+                },
+                0x7fd5d58aa290{
+                  tag = "TNil"
+                },
+                tag = "TUnion"
+              },
+              const = false,
+              tag = "TField"
+            },
+            tag = "TTable"
+          },
+          tag = "TField"
+        },
+        open = true,
+        tag = "TTable"
+      },
+      pos = 169,
+      tag = "Id"
+    },
+    pos = 162,
+    tag = "Return"
+  },
+  pos = 1,
+  tag = "Block"
+}

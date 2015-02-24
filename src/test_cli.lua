@@ -33,6 +33,10 @@ describe('Test CLI', function()
     testFixture('fixture2', 'Fixture2.java')
   end)
 
+  it('Generates fixture3', function()
+    testFixture('fixture3', 'Fixture3.java')
+  end)
+
   it('Generates arrays', function()
     testFixture('arrays', 'Arrays.java')
   end)

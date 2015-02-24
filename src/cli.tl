@@ -3,7 +3,7 @@ local java = require 'java'
 local lpeg = require 'lpeg'
 local math = require 'math'
 local os = require 'os'
-local serpent = require 'serpent'
+local pretty = require 'pretty'
 local string = require 'string'
 local swift = require 'swift'
 local table = require 'table'
@@ -115,7 +115,7 @@ local function runArguments(arguments: ProgramArgs): (boolean)?
   if #typecheckMessages > 0 then
     local errorMessages: {string|number} = {}
     for k, v in pairs(typecheckMessages) do
-      local msg = string.format('ERR: %s: %s', k, serpent.line(v))
+      local msg = string.format('ERR: %s: %s', k, pretty.write(v))
       table.insert(errorMessages, #errorMessages + 1, msg)
     end
     return nil, table.concat(errorMessages, '\n')

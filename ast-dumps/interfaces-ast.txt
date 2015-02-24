@@ -1,0 +1,137 @@
+{
+  0x7fd5d5d272d0{
+    0x7fd5d5d26490{
+      0x7fd5d5d26610{
+        "_M",
+        type = 0x7fd5d2fce450{
+          open = true,
+          tag = "TTable"
+        },
+        pos = 7,
+        tag = "Id"
+      },
+      pos = 7,
+      tag = "NameList"
+    },
+    0x7fd5d5d27290{
+      0x7fd5d5d26840{
+        type = 0x7fd5d2fce340{
+          unique = true,
+          tag = "TTable"
+        },
+        pos = 12,
+        tag = "Table"
+      },
+      pos = 12,
+      tag = "ExpList"
+    },
+    pos = 7,
+    tag = "Local"
+  },
+  0x7fd5d5d281b0{
+    "A",
+    0x7fd5d5d28100{
+      0x7fd5d5d28030{
+        0x7fd5d5d27fb0{
+          "afoo",
+          tag = "TLiteral"
+        },
+        0x7fd5d5d27d50{
+          0x7fd5d5d27700{
+            0x7fd5d5d27550{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5d277b0{
+              0x7fd5d5d27770{
+                tag = "TValue"
+              },
+              tag = "TVararg"
+            },
+            tag = "TTuple"
+          },
+          0x7fd5d5d27a90{
+            0x7fd5d5d278b0{
+              "number",
+              tag = "TBase"
+            },
+            0x7fd5d5d27b40{
+              0x7fd5d5d27b00{
+                tag = "TNil"
+              },
+              tag = "TVararg"
+            },
+            tag = "TTuple"
+          },
+          tag = "TFunction"
+        },
+        tag = "TField"
+      },
+      interface = "A",
+      tag = "TTable"
+    },
+    pos = 22,
+    is_local = true,
+    tag = "Interface"
+  },
+  0x7fd5d5d290a0{
+    "B",
+    0x7fd5d5d28ff0{
+      0x7fd5d5d28f20{
+        0x7fd5d5d28ea0{
+          "bfoo",
+          tag = "TLiteral"
+        },
+        0x7fd5d5d28c40{
+          0x7fd5d5d285f0{
+            0x7fd5d5d283f0{
+              "string",
+              tag = "TBase"
+            },
+            0x7fd5d5d286a0{
+              0x7fd5d5d28660{
+                tag = "TValue"
+              },
+              tag = "TVararg"
+            },
+            tag = "TTuple"
+          },
+          0x7fd5d5d28980{
+            0x7fd5d5d287a0{
+              "string",
+              tag = "TBase"
+            },
+            0x7fd5d5d28a30{
+              0x7fd5d5d289f0{
+                tag = "TNil"
+              },
+              tag = "TVararg"
+            },
+            tag = "TTuple"
+          },
+          tag = "TFunction"
+        },
+        tag = "TField"
+      },
+      interface = "B",
+      tag = "TTable"
+    },
+    pos = 68,
+    tag = "Interface"
+  },
+  0x7fd5d5d29220{
+    0x7fd5d5d29160{
+      "_M",
+      type = 0x7fd5d2fce450{
+        open = true,
+        tag = "TTable"
+      },
+      pos = 121,
+      tag = "Id"
+    },
+    pos = 114,
+    tag = "Return"
+  },
+  pos = 1,
+  tag = "Block"
+}
