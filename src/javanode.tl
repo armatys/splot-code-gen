@@ -2,8 +2,6 @@ local javautils = require 'javautils'
 local Node = require 'node'
 local string = require 'string'
 
-local NullableFQN = 'javax.annotation.Nullable'
-
 interface JavaClassDescriptor
   visibility: string?
   static: boolean?
@@ -11,11 +9,15 @@ interface JavaClassDescriptor
   extends: string?
 end
 
-interface JavaFieldSpec
-  fieldName: string
-  fieldType: string
-  fieldInit: string?
+interface JavaValueInfo
+  name: string
+  paramType: string
   optional: boolean?
+  defaultValue: string?
+end
+
+interface JavaFieldSpec
+  valueInfo: JavaValueInfo
   visibility: string?
   static: boolean?
   getter: string|boolean?
@@ -24,22 +26,15 @@ interface JavaFieldSpec
   setterVisibility: string?
 end
 
-interface JavaMethodParam
-  name: string
-  paramType: string
-  optional: boolean?
-  defaultValue: string?
-end
-
 interface JavaMethodReturn
-  returnType: string
+  valueInfos: {JavaValueInfo}
   optional: boolean?
 end
 
 interface JavaMethodSpec
   methodName: string
   returnSpec: JavaMethodReturn
-  params: {JavaMethodParam}?
+  params: {JavaValueInfo}?
   visibility: string?
   static: boolean?
   throws: {string}?
@@ -47,7 +42,7 @@ interface JavaMethodSpec
 end
 
 interface JavaConstructorSpec
-  params: {JavaMethodParam}?
+  params: {JavaValueInfo}?
   visibility: string?
   code: string?
 end
@@ -64,7 +59,7 @@ interface JavaNode
   const code:() => (string)
   const constructor:(JavaConstructorSpec?) => (self)
   const field:(JavaFieldSpec) => (self)
-  const generateMethodParams:({JavaMethodParam}?, {string}) => (Node)
+  const generateMethodParams:({JavaValueInfo}?, {string}) => (Node)
   const import:(string) => (self)
   const method:(JavaMethodSpec) => (self)
   const package:(string) => (self)
@@ -79,7 +74,7 @@ end
 local function generateGetterCode(fieldSpec: JavaFieldSpec): string?
   local getter: string|boolean? = fieldSpec.getter
   if type(getter) == 'boolean' then
-    local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.fieldName)
+    local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.valueInfo.name)
     return table.concat({'return', fieldVarName, ';'}, ' ')
   elseif type(getter) == 'string' then
     return getter
@@ -91,8 +86,8 @@ end
 local function generateSetterCode(fieldSpec: JavaFieldSpec): string?
   local setter: string|boolean? = fieldSpec.setter
   if type(setter) == 'boolean' then
-    local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.fieldName)
-    return table.concat({fieldVarName, '=', fieldSpec.fieldName, ';'}, ' ')
+    local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.valueInfo.name)
+    return table.concat({fieldVarName, '=', fieldSpec.valueInfo.name, ';'}, ' ')
   elseif type(setter) == 'string' then
     return setter
   else
@@ -100,26 +95,38 @@ local function generateSetterCode(fieldSpec: JavaFieldSpec): string?
   end
 end
 
+local function getValueInfoTypeName(valueInfo: JavaValueInfo): string
+  local buf: {string} = {}
+  if valueInfo.optional then
+    table.insert(buf, #buf + 1, 'Optional<')
+  end
+  table.insert(buf, #buf + 1, valueInfo.paramType)
+  if valueInfo.optional then
+    table.insert(buf, #buf + 1, '>')
+  end
+  return table.concat(buf, '')
+end
+
 local function generateField(fieldSpec: JavaFieldSpec): Node
   local declBuf: {string} = {}
   if fieldSpec.visibility then
     if isVisibilitySpecInvalid(fieldSpec.visibility) then
-      error(string.format('Field %s has invalid visibility: "%s"', fieldSpec.fieldName, tostring(fieldSpec.visibility)), 3)
+      error(string.format('Field %s has invalid visibility: "%s"', fieldSpec.valueInfo.name, tostring(fieldSpec.visibility)), 3)
     end
     table.insert(declBuf, #declBuf + 1, fieldSpec.visibility)
   end
   if fieldSpec.static then
     table.insert(declBuf, #declBuf + 1, 'static')
   end
-  if fieldSpec.optional then
-    table.insert(declBuf, #declBuf + 1, '@Nullable')
-  end
-  table.insert(declBuf, #declBuf + 1, fieldSpec.fieldType)
-  local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.fieldName)
+
+  local fieldTypeName: string = getValueInfoTypeName(fieldSpec.valueInfo)
+  table.insert(declBuf, #declBuf + 1, fieldTypeName)
+
+  local fieldVarName: string = javautils.makeFieldVarName(fieldSpec.valueInfo.name)
   table.insert(declBuf, #declBuf + 1, fieldVarName)
-  if fieldSpec.fieldInit then
+  if fieldSpec.valueInfo.defaultValue then
     table.insert(declBuf, #declBuf + 1, '=')
-    table.insert(declBuf, #declBuf + 1, fieldSpec.fieldInit)
+    table.insert(declBuf, #declBuf + 1, fieldSpec.valueInfo.defaultValue)
   end
   table.insert(declBuf, #declBuf + 1, ';')
   local node: Node = Node:new()
@@ -156,6 +163,7 @@ const function JavaNode:new(): self
   t.node = _node
 
   local s = setmetatable(t, {__index = self})
+  s:import('io.splot.data.*')
   return s
 end
 
@@ -189,16 +197,13 @@ const function JavaNode:package(fqn: string): self
   return self
 end
 
-const function JavaNode:generateMethodParams(_params: {JavaMethodParam}?, buf: {string}): Node
+const function JavaNode:generateMethodParams(_params: {JavaValueInfo}?, buf: {string}): Node
   local codeNode: Node = Node:new()
-  local params: {JavaMethodParam} = _params or {}
+  local params: {JavaValueInfo} = _params or {}
 
   for i, param in ipairs(params) do
-    if param.optional then
-      self:import(NullableFQN)
-      table.insert(buf, #buf + 1, '@Nullable')
-    end
-    table.insert(buf, #buf + 1, param.paramType)
+    local typeName: string = getValueInfoTypeName(param)
+    table.insert(buf, #buf + 1, typeName)
     table.insert(buf, #buf + 1, param.name)
     if i < #params then
       table.insert(buf, #buf + 1, ',')
@@ -253,6 +258,41 @@ const function JavaNode:constructor(s: JavaConstructorSpec?): self
   return self
 end
 
+local function getReturnTypeName(returnSpec: JavaMethodReturn): string
+  local returnedValueCount = #returnSpec.valueInfos
+  if returnedValueCount > 4 then
+    error('Returning more than 4 values is not supported.')
+  end
+
+  local buf: {string} = {}
+  if returnSpec.optional then
+    table.insert(buf, #buf + 1, 'Optional<')
+  end
+
+  if returnedValueCount > 1 then
+    table.insert(buf, #buf + 1, string.format('Tuple%d<', returnedValueCount))
+  end
+
+  for i=1,returnedValueCount do
+    local valueInfo = returnSpec.valueInfos[i]
+    local typeName: string = getValueInfoTypeName(valueInfo)
+    table.insert(buf, #buf + 1, typeName)
+    if returnedValueCount > 1 and i < returnedValueCount then
+      table.insert(buf, #buf + 1, ', ')
+    end
+  end
+
+  if returnedValueCount > 1 then
+    table.insert(buf, #buf + 1, '>') -- for Tuple class
+  end
+
+  if returnSpec.optional then
+    table.insert(buf, #buf + 1, '>') -- for Optional class
+  end
+
+  return table.concat(buf, '')
+end
+
 const function JavaNode:method(spec: JavaMethodSpec): self
   local firstLineBuf: {string} = {}
   spec.params = spec.params or {}
@@ -268,11 +308,8 @@ const function JavaNode:method(spec: JavaMethodSpec): self
     table.insert(firstLineBuf, #firstLineBuf + 1, 'static')
   end
 
-  if spec.returnSpec.optional then
-    self:import(NullableFQN)
-    table.insert(firstLineBuf, #firstLineBuf + 1, '@Nullable')
-  end
-  table.insert(firstLineBuf, #firstLineBuf + 1, spec.returnSpec.returnType)
+  local returnTypeName: string = getReturnTypeName(spec.returnSpec)
+  table.insert(firstLineBuf, #firstLineBuf + 1, returnTypeName)
   table.insert(firstLineBuf, #firstLineBuf + 1, spec.methodName)
   table.insert(firstLineBuf, #firstLineBuf + 1, '(')
   local codeNode: Node = self:generateMethodParams(spec.params, firstLineBuf)
@@ -303,16 +340,13 @@ end
 
 const function JavaNode:field(fieldSpec: JavaFieldSpec): self
   self.node:child(generateField(fieldSpec))
-  if fieldSpec.optional then
-    self:import(NullableFQN)
-  end
 
   if fieldSpec.getter then
-    local accessorName: string = javautils.makeAccessorName('get', fieldSpec.fieldName)
+    local accessorName: string = javautils.makeAccessorName('get', fieldSpec.valueInfo.name)
     local code = generateGetterCode(fieldSpec)
     if code then
-      local returnSpec: JavaMethodReturn = {returnType = fieldSpec.fieldType, optional = fieldSpec.optional}
-      local params: {JavaMethodParam}? = nil
+      local returnSpec: JavaMethodReturn = {valueInfos={{paramType = fieldSpec.valueInfo.paramType}}, optional = fieldSpec.valueInfo.optional}
+      local params: {JavaValueInfo}? = nil
       local spec: JavaMethodSpec = {
         methodName = accessorName,
         returnSpec = returnSpec,
@@ -326,11 +360,11 @@ const function JavaNode:field(fieldSpec: JavaFieldSpec): self
   end
 
   if fieldSpec.setter then
-    local accessorName = javautils.makeAccessorName('set', fieldSpec.fieldName)
+    local accessorName = javautils.makeAccessorName('set', fieldSpec.valueInfo.name)
     local code = generateSetterCode(fieldSpec)
     if code then
-      local returnSpec: JavaMethodReturn = {returnType = 'void', optional = false}
-      local params: {JavaMethodParam} = { {name = fieldSpec.fieldName, paramType = fieldSpec.fieldType, optional = fieldSpec.optional} }
+      local returnSpec: JavaMethodReturn = {valueInfos={{paramType = 'void'}}, optional = false}
+      local params: {JavaValueInfo} = { {name = fieldSpec.valueInfo.name, paramType = fieldSpec.valueInfo.paramType, optional = fieldSpec.valueInfo.optional} }
       local spec: JavaMethodSpec = {
         methodName = accessorName,
         returnSpec = returnSpec,

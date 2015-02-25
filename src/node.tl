@@ -19,8 +19,7 @@ interface Node
   const code:() => (string)
 end
 
-local function iterateChildren(children: {Node}, level: integer, code: {string})
-  local lines: {string: boolean} = {}
+local function iterateChildren(children: {Node}, level: integer, code: {string}, lines: {string: boolean})
   for _, childnode in ipairs(children) do
     local codelines = childnode:tree(level)
     for _, line in ipairs(codelines) do
@@ -110,16 +109,17 @@ end
 const function Node:tree(level: integer?): {string}
   level = level or 0
   local code: {string} = {}
+  local lines: {string: boolean} = {}
 
   if level == 0 then
-    iterateChildren(self.root_children, 0, code)
+    iterateChildren(self.root_children, 0, code, lines)
     for _, childnode in ipairs(self.children) do
-      iterateChildren(childnode.root_children, 0, code)
+      iterateChildren(childnode.root_children, 0, code, lines)
     end
   end
 
   iterateContents(self.left_contents, level, code)
-  iterateChildren(self.children, level + 1, code)
+  iterateChildren(self.children, level + 1, code, lines)
   iterateContents(self.right_contents, level, code)
 
   return code

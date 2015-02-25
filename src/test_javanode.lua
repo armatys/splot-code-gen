@@ -5,12 +5,13 @@ local table = require 'table'
 describe('Test Java code generator.', function()
   it('import a single class', function()
     local code = JavaNode:new():import('java.lang.String'):code()
-    assert.is.equals('import java.lang.String;', code)
+    assert.is.equals('import io.splot.data.*;\nimport java.lang.String;', code)
   end)
 
   it('should create a simple class', function()
     local code = JavaNode:new():setclass('Test'):code()
     assert.is.equals([[
+import io.splot.data.*;
 class Test {
 }]], code)
   end)
@@ -18,6 +19,7 @@ class Test {
   it('should create a public class', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'}):code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
 }]], code)
   end)
@@ -25,6 +27,7 @@ public class Test {
   it('should create a static class', function()
     local code = JavaNode:new():setclass('Test', {static = true}):code()
     assert.is.equals([[
+import io.splot.data.*;
 static class Test {
 }]], code)
   end)
@@ -32,6 +35,7 @@ static class Test {
   it('should create a public static class', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public', static = true}):code()
     assert.is.equals([[
+import io.splot.data.*;
 public static class Test {
 }]], code)
   end)
@@ -41,6 +45,7 @@ public static class Test {
       :import('java.util.ArrayList')
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 import java.util.ArrayList;
 public class Test {
 }]], code)
@@ -51,6 +56,7 @@ public class Test {
       :child(JavaNode:new():setclass('InnerTest').node)
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   class InnerTest {
   }
@@ -62,6 +68,7 @@ public class Test {
       :child(JavaNode:new():setclass('InnerTest', {visibility = 'private'}).node)
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private class InnerTest {
   }
@@ -73,6 +80,7 @@ public class Test {
       :child(JavaNode:new():setclass('InnerTest', {static = true, visibility = 'private'}).node)
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private static class InnerTest {
   }
@@ -90,6 +98,7 @@ public class Test {
       :child(JavaNode:new():setclass('InnerTest'):import('java.util.HashMap').node)
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 import java.util.HashMap;
 class Test {
   class InnerTest {
@@ -99,9 +108,10 @@ class Test {
 
   it('should create a public class with a field', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String'})
+      :field({valueInfo={name = 'text', paramType = 'String'}})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   String mText ;
 }]], code)
@@ -110,29 +120,30 @@ public class Test {
   it('should fail creating a public class with a field with invalid visibility', function()
     assert.has_error(function()
       local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-        :field({fieldName = 'text', fieldType = 'String', visibility = 'secret'})
+        :field({valueInfo={name = 'text', paramType = 'String'}, visibility = 'secret'})
     end)
   end)
 
   it('should fail creating getter with invalid visibility', function()
     assert.has_error(function()
       local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-        :field({fieldName = 'text', fieldType = 'String', getter = true, getterVisibility = 'secret'})
+        :field({valueInfo={name = 'text', paramType = 'String'}, getter = true, getterVisibility = 'secret'})
     end)
   end)
 
   it('should fail creating setter with invalid visibility', function()
     assert.has_error(function()
       local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-        :field({fieldName = 'text', fieldType = 'String', setter = true, setterVisibility = 'secret'})
+        :field({valueInfo={name = 'text', paramType = 'String'}, setter = true, setterVisibility = 'secret'})
     end)
   end)
 
   it('should create a public class with a private field', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private'})
+      :field({valueInfo={name = 'text', paramType = 'String'}, visibility = 'private'})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private String mText ;
 }]], code)
@@ -140,20 +151,21 @@ public class Test {
 
   it('should create a public class with optional private field', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private', optional = true})
+      :field({valueInfo={name = 'text', paramType = 'String', optional = true}, visibility = 'private'})
       :code()
     assert.is.equals([[
-import javax.annotation.Nullable;
+import io.splot.data.*;
 public class Test {
-  private @Nullable String mText ;
+  private Optional<String> mText ;
 }]], code)
   end)
 
   it('should create a public class with a private field with a default getter', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private', getter = true})
+      :field({valueInfo={name = 'text', paramType = 'String'}, visibility = 'private', getter = true})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private String mText ;
   String getText ( ) {
@@ -164,13 +176,13 @@ public class Test {
 
   it('should create a public class with a private optional field with a default getter', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private', optional = true, getter = true})
+      :field({valueInfo={name = 'text', paramType = 'String', optional = true}, visibility = 'private', getter = true})
       :code()
     assert.is.equals([[
-import javax.annotation.Nullable;
+import io.splot.data.*;
 public class Test {
-  private @Nullable String mText ;
-  @Nullable String getText ( ) {
+  private Optional<String> mText ;
+  Optional<String> getText ( ) {
     return mText ;
   }
 }]], code)
@@ -178,9 +190,10 @@ public class Test {
 
   it('should create a public class with a private field with a public default getter', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private', getter = true, getterVisibility = 'public'})
+      :field({valueInfo={name = 'text', paramType = 'String'}, visibility = 'private', getter = true, getterVisibility = 'public'})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private String mText ;
   public String getText ( ) {
@@ -191,9 +204,10 @@ public class Test {
 
   it('should create a public class with a private field with a default setter', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private', setter = true})
+      :field({valueInfo={name = 'text', paramType = 'String'}, visibility = 'private', setter = true})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private String mText ;
   void setText ( String text ) {
@@ -204,13 +218,13 @@ public class Test {
 
   it('should create a public class with an optional private field with default value and a default setter', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private', optional = true, fieldInit = '"hello"', setter = true})
+      :field({valueInfo={name = 'text', paramType = 'String', optional = true, defaultValue = '"hello"'}, visibility = 'private', setter = true})
       :code()
     assert.is.equals([[
-import javax.annotation.Nullable;
+import io.splot.data.*;
 public class Test {
-  private @Nullable String mText = "hello" ;
-  void setText ( @Nullable String text ) {
+  private Optional<String> mText = "hello" ;
+  void setText ( Optional<String> text ) {
     mText = text ;
   }
 }]], code)
@@ -218,9 +232,10 @@ public class Test {
 
   it('should create a public class with a private field with a public default setter', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private', setter = true, setterVisibility = 'public'})
+      :field({valueInfo={name = 'text', paramType = 'String'}, visibility = 'private', setter = true, setterVisibility = 'public'})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private String mText ;
   public void setText ( String text ) {
@@ -231,9 +246,10 @@ public class Test {
 
   it('should create a public class with a private field with a default getter and setter', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = 'text', fieldType = 'String', visibility = 'private', getter = true, setter = true})
+      :field({valueInfo={name = 'text', paramType = 'String'}, visibility = 'private', getter = true, setter = true})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private String mText ;
   String getText ( ) {
@@ -252,9 +268,10 @@ public class Test {
 System.out.println("Getter");
 return %s;]], varName)
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = fieldName, fieldType = 'String', visibility = 'private', getterVisibility = 'public', getter = getterCode})
+      :field({valueInfo={name = fieldName, paramType = 'String'}, visibility = 'private', getterVisibility = 'public', getter = getterCode})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private String mText ;
   public String getText ( ) {
@@ -271,9 +288,10 @@ public class Test {
 System.out.println("Setter");
 %s = %s;]], varName, fieldName)
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName = fieldName, fieldType = 'String', visibility = 'private', setterVisibility = 'public', setter = setterCode})
+      :field({valueInfo={name = fieldName, paramType = 'String'}, visibility = 'private', setterVisibility = 'public', setter = setterCode})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   private String mText ;
   public void setText ( String text ) {
@@ -288,6 +306,7 @@ public class Test {
       :constructor()
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   Test ( ) {
   }
@@ -299,6 +318,7 @@ public class Test {
       :constructor({visibility = 'protected'})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   protected Test ( ) {
   }
@@ -315,6 +335,7 @@ super();
       })
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   public Test ( ) {
     super();
@@ -324,7 +345,7 @@ public class Test {
 
   it('should create a public class with a custom public constructor with params and a field', function()
     local code = JavaNode:new():setclass('Test', {visibility = 'public'})
-      :field({fieldName='answer', fieldType='int'})
+      :field({valueInfo={name='answer', paramType='int'}})
       :constructor({
         visibility = 'public',
         params = { {name='answer', paramType='int'} },
@@ -334,6 +355,7 @@ mAnswer = answer;
       })
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   int mAnswer ;
   public Test ( int answer ) {
@@ -352,9 +374,9 @@ public class Test {
       })
       :code()
     assert.is.equals([[
-import javax.annotation.Nullable;
+import io.splot.data.*;
 public class Test {
-  Test ( int answer , @Nullable String text ) {
+  Test ( int answer , Optional<String> text ) {
     // Custom constructor
   }
 }]], code)
@@ -367,9 +389,9 @@ public class Test {
       })
       :code()
     assert.is.equals([[
-import javax.annotation.Nullable;
+import io.splot.data.*;
 public class Test {
-  Test ( @Nullable String text ) {
+  Test ( Optional<String> text ) {
     if (text == null) {
       text = "Hi!";
     }
@@ -380,9 +402,10 @@ public class Test {
   it('should create a public class with a public method', function()
     local code = JavaNode:new()
       :setclass('Test', {visibility = 'public'})
-      :method({methodName='foo', returnSpec={returnType='void'}, visibility='public', code='System.out.println("Hello foo");'})
+      :method({methodName='foo', returnSpec={valueInfos={{paramType='void'}}}, visibility='public', code='System.out.println("Hello foo");'})
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   public void foo ( ) {
     System.out.println("Hello foo");
@@ -395,13 +418,14 @@ public class Test {
       :setclass('Test', {visibility = 'public'})
       :method({
         methodName='foo',
-        returnSpec={returnType='void'},
+        returnSpec={valueInfos={{paramType='void'}}},
         visibility='public',
         code='System.out.println("Hello foo");',
         throws={'Exception'}
       })
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   public void foo ( ) throws Exception {
     System.out.println("Hello foo");
@@ -414,13 +438,14 @@ public class Test {
       :setclass('Test', {visibility = 'public'})
       :method({
         methodName='foo',
-        returnSpec={returnType='void'},
+        returnSpec={valueInfos={{paramType='void'}}},
         visibility='public',
         code='System.out.println("Hello foo");',
         throws={'NumberFormatException', 'IndexOutOfBoundsException'}
       })
       :code()
     assert.is.equals([[
+import io.splot.data.*;
 public class Test {
   public void foo ( ) throws NumberFormatException, IndexOutOfBoundsException {
     System.out.println("Hello foo");

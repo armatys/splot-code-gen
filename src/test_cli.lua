@@ -8,12 +8,15 @@ local function getTmpFile(filename)
   return tmpDirPath .. filename
 end
 
-local function testFixture(fixtureName, outFileName)
+local function testFixture(fixtureName, outFileName, printErrors)
+  if type(printErrors) == 'nil' then
+    printErrors = true
+  end
   local ok, errMsg = cli.parseArguments({'fixtures/' .. fixtureName .. '.tl', fixtureName, getTmpFile(outFileName)})
-  assert.is_true(ok)
-  if not ok then
+  if not ok and printErrors then
     print(errMsg)
   end
+  assert.is_true(ok)
 end
 
 describe('Test CLI', function()
@@ -25,7 +28,7 @@ describe('Test CLI', function()
 
   it('Should not generate fixture1 (because it has a type error)', function()
     assert.has_error(function()
-      testFixture('fixture1', 'Fixture1.java')
+      testFixture('fixture1', 'Fixture1.java', false)
     end)
   end)
 

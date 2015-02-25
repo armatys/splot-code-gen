@@ -29,7 +29,6 @@ mLuaTableRef = mEngine.addTableReference();
 end
 
 local function makeInnerLevelConstructor(className): JavaConstructorSpec
-  -- TODO
   local constructor: JavaConstructorSpec = {
     visibility = 'public',
     params = {
@@ -50,7 +49,7 @@ end
 local function makeClassFinalizer(): JavaMethodSpec
   local spec: JavaMethodSpec = {
     methodName = 'finalize',
-    returnSpec = {returnType='void'},
+    returnSpec = {valueInfos={{name='', paramType='void'}}},
     visibility = 'protected',
     throws = {'Throwable'},
     code = [[
@@ -70,13 +69,13 @@ local function getJavaBaseType(typedLuaT: string): string
   elseif typedLuaT == 'integer' then
     return 'Integer'
   elseif typedLuaT == 'string' then
-    return 'io.splot.LuaString'
+    return 'LuaString'
   end
   error('Unsupported type ' .. tostring(typedLuaT))
   return ''
 end
 
-local function getJavaMethodParam(paramName: string, nodeType: {any: any}): JavaMethodParam
+local function getJavaMethodParam(paramName: string, nodeType: {any: any}): JavaValueInfo
   if (nodeType.tag == 'TBase') then
     local tname = getJavaBaseType(nodeType[1])
     return {name = paramName, paramType = tname}
@@ -84,10 +83,10 @@ local function getJavaMethodParam(paramName: string, nodeType: {any: any}): Java
     return {name = paramName, paramType = 'void'}
   elseif nodeType.tag == 'TUnion' then
     if nodeType[1].tag == 'TNil' then
-      local tname = getJavaMethodParam(nodeType[2]).paramType
+      local tname = getJavaMethodParam(paramName, nodeType[2]).paramType
       return {name = paramName, paramType = tname, optional = true}
     elseif nodeType[2].tag == 'TNil' then
-      local tname = getJavaMethodParam(nodeType[1]).paramType
+      local tname = getJavaMethodParam(paramName, nodeType[1]).paramType
       return {name = paramName, paramType = tname, optional = true}
     else
       error('Union types not yet supported.')
@@ -95,17 +94,18 @@ local function getJavaMethodParam(paramName: string, nodeType: {any: any}): Java
   elseif nodeType.tag == 'TValue' then
     return {name = paramName, paramType = 'Object'}
   elseif nodeType.tag == 'TVararg' then
-    local tname = getJavaMethodParam(nodeType[1]).paramType .. '...'
+    local tname = getJavaMethodParam(paramName, nodeType[1]).paramType .. '...'
     return {name = paramName, paramType = tname}
   elseif nodeType.tag == 'TTable' then
     -- if not fieldName then
     --   error('Missing field name parameter.', 2)
     -- end
     -- return 'T' .. fieldName
+    return 'TUnknown'
   end
 
   error('Unsupported node type: ' .. tostring(nodeType.tag))
-  return {paramType=''}
+  return {name='', paramType=''}
 end
 
 local function findIdTable(parentTable: {any: any}, q: {any: any}): {any: any}?
@@ -131,14 +131,14 @@ local function findMethodParamName(context: Context, paramNode: {any: any}): str
   return t and t[1] or nil
 end
 
-local function getMethodParams(context: Context, paramsTuple: {any: any}) : {JavaMethodParam}
+local function getMethodParams(context: Context, paramsTuple: {any: any}) : {JavaValueInfo}
   local paramsLen = #paramsTuple
-  local params: {JavaMethodParam} = {}
+  local params: {JavaValueInfo} = {}
   for i=1,paramsLen do
     local param: {any: any} = paramsTuple[i]
     if param.tag ~= 'TVararg' and param[1].tag ~= 'TValue' or i < paramsLen then
       local paramName: string = findMethodParamName(context, param) or ('param' .. tostring(i))
-      local paramSpec: JavaMethodParam = getJavaMethodParam(paramName, param)
+      local paramSpec: JavaValueInfo = getJavaMethodParam(paramName, param)
       table.insert(params, #params + 1, paramSpec)
     end
   end
@@ -146,9 +146,18 @@ local function getMethodParams(context: Context, paramsTuple: {any: any}) : {Jav
 end
 
 local function getMethodReturnType(context: Context, returnsTuple: {any: any}): JavaMethodReturn
-  return {
-    returnType = 'void'
-  }
+  local returnSpec: JavaMethodReturn = {valueInfos={}}
+  local n = #returnsTuple
+
+  for i=1,n do
+    local arg = returnsTuple[i]
+    if arg.tag ~= 'TVararg' and arg[1].tag ~= 'TNil' then
+      local p = getJavaMethodParam('', arg)
+      table.insert(returnSpec.valueInfos, #returnSpec.valueInfos + 1, p)
+    end
+  end
+
+  return returnSpec
 end
 
 local function processFunction(context: Context, funcName: string, fieldValueNode: {any: any}, parentClass: JavaNode)
@@ -163,8 +172,8 @@ local function processFunction(context: Context, funcName: string, fieldValueNod
     error('The function ' .. funcName .. ' has incorrect return type: ' .. returnsTuple.tag)
   end
 
-  local params: {JavaMethodParam} = getMethodParams(context, paramsTuple)
-  local returnSpec: JavaMethodReturn = getMethodReturnType(returnsTuple)
+  local params: {JavaValueInfo} = getMethodParams(context, paramsTuple)
+  local returnSpec: JavaMethodReturn = getMethodReturnType(context, returnsTuple)
 
   parentClass:method({
     methodName = funcName,
@@ -222,16 +231,14 @@ local function processTTable(context: Context, ttable: {any: any}, topLevel: boo
   -- Fields
 
   javaNode:field({
-    fieldName = 'engine',
-    fieldType = 'SplotEngine',
+    valueInfo = {name='engine', paramType='SplotEngine'},
     visibility = 'private',
     getter = true,
     getterVisibility = 'public'
   })
 
   javaNode:field({
-    fieldName = 'luaTableRef',
-    fieldType = 'int',
+    valueInfo = {name='luaTableRef', paramType='int'},
     visibility = 'private',
     getter = true,
     getterVisibility = 'public'
@@ -239,8 +246,7 @@ local function processTTable(context: Context, ttable: {any: any}, topLevel: boo
 
   if topLevel then
     javaNode:field({
-      fieldName = 'luaModuleName',
-      fieldType = 'String',
+      valueInfo = {name='luaModuleName', paramType='String'},
       visibility = 'private',
       getter = true,
       getterVisibility = 'public'
